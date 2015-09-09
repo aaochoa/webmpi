@@ -20,18 +20,23 @@ router.get('/', function(req, res) {
 });
 
 router.get('/editor', function(req, res) {
-  var content = "// Welcome to the MPI-COMPILER";    
-  var info = " Your output area "    
+  var content = req.body;
+  content.codebox='// Welcome to the MPI-COMPILER  Powered By SIRIUS lab'
+  content.cpu = true;
+  content.gpu = false;
+  content.mpi = false;
+  content.condor = false;
+  content.submitfile = "submit file";     
+  var info = " Your output area ";    
   res.render('test.html',{message : content , logs: info });
 });
 
 //To handle the text editor actions
 
 router.post('/editor', function(req, res,next) {
-    var content = req.body.codebox;
-    //process.stdout.write(content);
+    var content = req.body;
     run.shell(content,res);
-    
+    //res.send(content);
     //next();
 });
 

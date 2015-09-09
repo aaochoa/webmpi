@@ -47,6 +47,7 @@
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#tab1primary" data-toggle="tab">Text editor</a></li>
                             <li><a href="#tab2primary" data-toggle="tab">Compiler settings</a></li>
+                            <li><a href="#tab3primary" data-toggle="tab">HTCondor Outputs</a></li>
                         </ul>
                 </div>
                 <div class="panel-body">
@@ -64,24 +65,33 @@
                                 tabSize: 2,
                                 mode: 'text/x-csrc'               
                                 });
-                                editor.setValue(<%- JSON.stringify(message)%>);
-                              </script>      
+                                editor.setValue(<%- JSON.stringify(message.codebox)%>);
+                            </script>      
                         </div>
                             
                         <div class="tab-pane fade" id="tab2primary">
-                        <h3>Here you can choose your compiling options</h3>
-                         <label>Universe</label>
-                         <input type="text" class="form-control" placeholder="Parallel, vanilla...">
-                        <label>Graphic card or processor</label>
+                        <h3>Here you can choose your compiling options</h3>                       
+                        <label>Graphic card - Processor - HTCondor</label>
                         <br>
                         <label class="checkbox-inline">
-                        <input type="checkbox" id="CPU" value="option1" checked> CPU
+                        <input type="checkbox" id="CPU" name="cpu" > CPU
                         </label>
                         <label class="checkbox-inline">
-                        <input type="checkbox" id="GPU" value="option2"> GPU
+                        <input type="checkbox" id="GPU" name="gpu" > GPU - CPU
                         </label>
                         <br>
-                        <label>How many machines do you want to use?</label>
+                        <label class="checkbox-inline">
+                        <input type="checkbox" id="MPI"  name="mpi" > MPI
+                        </label>
+                        <br>
+                        <label class="checkbox-inline">
+                        <input type="checkbox" id="CONDOR" name="condor" > HTCondor
+                        </label>
+                        <br>    
+                        <label>HTCondor Submit</label>
+                        <textarea id="sub" name="submitfile"  rows="5" class="form-control"></textarea>    
+                        <br>    
+                        <label>How many machines do you want to use?(for unchecked HTCondor option)</label>
                         <select class="form-control">
                           <option>1</option>
                           <option>2</option>
@@ -90,20 +100,30 @@
                           <option>5</option>
                         </select>
                         </div>
+                        
+                        <div class="tab-pane fade" id="tab3primary">
+                        <textarea id='condorout' name="outbox" rows='10' class='form-control textcontainer'></textarea>                   
+                        </div>    
         
                     </div>
                 </div>
               </div>              
             <textarea readonly id='infoarea' name="logs" rows="5" class='form-control textcontainer' value="logs"></textarea>
               <script>
-              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;              
+                // Set all values to "save" of render
+              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;
+              document.getElementById("CPU").checked=<%- JSON.stringify(message.cpu)%>;
+              document.getElementById("GPU").checked=<%- JSON.stringify(message.gpu)%>;              
+              document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
+              document.getElementById("CONDOR").checked=<%- JSON.stringify(message.condor)%>;
+              document.getElementById("condorout").value=<%- JSON.stringify(logs)%>;
+              document.getElementById("sub").value=<%- JSON.stringify(message.submitfile)%>;
+
               </script>
             <br>
             <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
         </form>
-      </div>
-
-      
+      </div>    
 
       <footer class="footer">
         <p>&copy; Sirius "Cluster" 2015</p>

@@ -4,11 +4,11 @@ var exec = require('child_process').exec;
 
 function shell(content,res){ 
     
-      if( content.search(/.*system\(.*/) == -1){
+      if( content.codebox.search(/.*system\(.*/) == -1){
           
            // primero compilar para luego ejecutar  
           
-              var child = exec(content, function (error, stdout, stderr){
+              var child = exec(content.codebox, function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
@@ -35,3 +35,6 @@ function shell(content,res){
 exports.shell = shell;
 
 
+// content : info control (textarea - checkbox - inputs - selects)
+// log : all outputs
+// typeof variable == "undefined"
