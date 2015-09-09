@@ -26,7 +26,8 @@ router.get('/editor', function(req, res) {
   content.gpu = false;
   content.mpi = false;
   content.condor = false;
-  content.submitfile = "submit file";     
+  content.submitfile = "submit file";
+  content.select = "1";
   var info = " Your output area ";    
   res.render('test.html',{message : content , logs: info });
 });
