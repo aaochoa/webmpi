@@ -21,7 +21,7 @@ router.get('/', function(req, res) {
 
 router.get('/editor', function(req, res) {
   var content = "// Welcome to the MPI-COMPILER";    
-  var info = " Your LOG area "    
+  var info = " Your output area "    
   res.render('test.html',{message : content , logs: info });
 });
 

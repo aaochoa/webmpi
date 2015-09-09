@@ -93,7 +93,11 @@
         
                     </div>
                 </div>
-              </div>
+              </div>              
+            <textarea readonly id='infoarea' name="logs" rows="5" class='form-control textcontainer' value="logs"></textarea>
+              <script>
+              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;              
+              </script>
             <br>
             <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
         </form>
