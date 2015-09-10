@@ -109,23 +109,22 @@
                 </div>
               </div>              
             <textarea readonly id='infoarea' name="logs" rows="5" class='form-control textcontainer' value="logs"></textarea>
-              <script>
-                // Set all values to "save" of render
-              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;
-              //document.getElementById("CPU").checked=<%- JSON.stringify(message.cpu)%>;
-              //document.getElementById("GPU").checked=<%- JSON.stringify(message.gpu)%>;              
-              //document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
-              //document.getElementById("CONDOR").checked=<%- JSON.stringify(message.condor)%>;
-              document.getElementById("condorout").value=<%- JSON.stringify(logs)%>;
-              //document.getElementById("sub").value=<%- JSON.stringify(message.submitfile)%>;
-              //document.getElementById("select").value=<%- JSON.stringify(message.select)%>;
-
-
-              </script>
             <br>
             <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
         </form>
       </div>    
+        
+        <script>
+                // Set all values to "save" of render
+              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;              
+              document.getElementById("CPU").checked=<%- JSON.stringify(message.cpu)%>;
+              document.getElementById("GPU").checked=<%- JSON.stringify(message.gpu)%>;              
+              document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
+              document.getElementById("CONDOR").checked=<%- JSON.stringify(message.condor)%>;
+              document.getElementById("condorout").value=<%- JSON.stringify(logs)%>;
+              document.getElementById("sub").value=<%- JSON.stringify(message.submitfile)%>;
+              document.getElementById("select").value=<%- JSON.stringify(message.select)%>;
+        </script>  
 
       <footer class="footer">
         <p>&copy; Sirius "Cluster" 2015</p>

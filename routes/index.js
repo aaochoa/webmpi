@@ -10,7 +10,7 @@ var run = require('../run');
 
 router.use(function(req,res,next){    
     //console.log(req.method,req.url);
-    logs.savelog(req.url);
+   // logs.savelog(req.url);   
     next();
     // continue doing what we were doing and go to the route
 });
@@ -37,8 +37,6 @@ router.get('/editor', function(req, res) {
 router.post('/editor', function(req, res,next) {
     var content = req.body;
     run.shell(content,res);
-    //res.send(content);
-    //next();
 });
 
 

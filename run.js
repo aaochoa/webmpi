@@ -4,6 +4,8 @@ var exec = require('child_process').exec;
 
 function shell(content,res){ 
     
+      jsonToValue(content); // change undefined json value to false.
+    
       if( content.codebox.search(/.*system\(.*/) == -1){
           
            // primero compilar para luego ejecutar  
@@ -27,8 +29,24 @@ function shell(content,res){
             return;
         
         }
+}
+
+function jsonToValue(content){
+    if(typeof content.cpu === "undefined"){
+        content.cpu = false;
+    }
     
-      
+     if(typeof content.gpu === "undefined"){
+        content.gpu = false;
+    }
+    
+     if(typeof content.mpi === "undefined"){
+        content.mpi = false;
+    }
+    
+     if(typeof content.condor === "undefined"){
+        content.condor = false;
+    }
 
 }
 
