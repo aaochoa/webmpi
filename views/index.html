@@ -27,6 +27,7 @@
           <ul class="nav nav-pills pull-right">
             <li role="presentation" class="active"><a href="/editor">Editor</a></li>
             <li role="presentation" class="active"><a target="_blank" href="http://sirius.utp.edu.co/sirius/">SIRIUS</a></li>
+            <li role="presentation" class="active" ><a href="/register" id="username"> </a></li>
         </nav>
         <h3 class="text-muted">MPI Online compiler</h3>
       </div>
@@ -35,7 +36,9 @@
         <h1>MPI Online compiler</h1>
         <h2>Welcome!</h2>
       </div>
-
+      <script>
+          document.getElementById("username").innerHTML=<%- JSON.stringify(user)%>;      
+      </script>
       
 
       <footer class="footer">

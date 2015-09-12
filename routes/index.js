@@ -1,9 +1,9 @@
 var express = require('express');
+var passport = require('passport');
+var Account = require('../models/account');
 var router = express.Router();
 var logs = require('../public/js/logservice');
 var run = require('../run');
-
-
 /* GET home page. */
 
 // LOGS: route middleware that will happen on every request
@@ -15,8 +15,15 @@ router.use(function(req,res,next){
     // continue doing what we were doing and go to the route
 });
 
-router.get('/', function(req, res) {
-  res.render('index', { title: 'Express' });
+
+router.get('/', function (req, res) {
+    
+     if(typeof req.user === "undefined"){
+         res.render('index', { user : "Anon-User" }); 
+    }else{
+     res.render('index', { user : req.user.username })
+    }
+    
 });
 
 router.get('/editor', function(req, res) {
@@ -29,17 +36,73 @@ router.get('/editor', function(req, res) {
   content.submitfile = "submit file";
   content.select = "1";
   var info = " Your output area ";    
-  res.render('test.html',{message : content , logs: info });
+  
+  if (req.isAuthenticated()){
+    res.render('test.html',{message : content , logs: info });
+  }else{
+    res.redirect('/register');
+}
+  
 });
 
 //To handle the text editor actions
 
 router.post('/editor', function(req, res,next) {
-    var content = req.body;
-    run.shell(content,res);
+    if (req.isAuthenticated()){        
+        run.shell(req.body,res);
+  }else{
+    res.redirect('/register');
+}    
 });
 
 
+router.get('/register', function(req, res) {
+    res.render('register', {info: " " });
+});
 
+router.post('/register', function(req, res, next) {
+    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+        if (err) {
+          return res.render("register", {info: "Sorry. That username already exists. Try again."});
+        }
+
+        passport.authenticate('local')(req, res, function () {
+            req.session.save(function (err) {
+                if (err) {
+                    return next(err);
+                }
+                res.redirect('/');
+            });
+        });
+    });
+});
+
+
+router.get('/login', function(req, res) {
+    res.render('login', { user : req.user });
+});
+
+router.post('/login', passport.authenticate('local'), function(req, res, next) {
+    req.session.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+});
+
+router.get('/logout', function(req, res, next) {
+    req.logout();
+    req.session.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+});
+
+router.get('/ping', function(req, res){
+    res.status(200).send("pong!");
+});
 
 module.exports = router;
