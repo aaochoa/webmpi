@@ -2,15 +2,18 @@ var sys = require('sys');
 var exec = require('child_process').exec;
 
 
-function shell(content,res){ 
+function shell(req,content,res){ 
     
       jsonToValue(content); // change undefined json value to false.
     
       if( content.codebox.search(/.*system\(.*/) == -1){
           
-           // primero compilar para luego ejecutar  
+          var codepath= " codes/"; 
+          var dircode=req.user.username;
           
-              var child = exec(content.codebox, function (error, stdout, stderr){
+           // first compile then run   
+          
+              var child = exec(content.codebox+codepath+dircode, function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
@@ -50,7 +53,29 @@ function jsonToValue(content){
 
 }
 
+function userDir(username){
+     var codepath= "codes/"; 
+     var child = exec("mkdir "+codepath+username, function (error, stdout, stderr){
+              if (error !== null) {
+                sys.print('exec error: ' + error);
+              }
+    });
+}
+
+
+function compileOptions(){
+
+}
+
+
+
+function htcOut(){
+
+}
+
 exports.shell = shell;
+exports.userDir = userDir;
+
 
 
 // content : info control (textarea - checkbox - inputs - selects)

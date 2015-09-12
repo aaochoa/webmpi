@@ -15,12 +15,52 @@
     <link rel="stylesheet" href="../css/style.css">
     </head>
     
+    <script>
+          
+       
+    
+   
+    function validateForm() { // TODO : best way to do this: 
+        alert(document.forms["myform"].getElementsByTagName("input"));
+        var x = document.forms["myform"]["username"].value;
+        if (x == null || x == "") {
+            alert("UserName must be filled out");
+            return false;
+        }
+        
+         var x = document.forms["myform"]["password"].value;
+        if (x == null || x == "") {
+            alert("password must be filled out");
+            return false;
+        }
+        
+         var x = document.forms["myform"]["email"].value;
+        if (x == null || x == "") {
+            alert("email must be filled out");
+            return false;
+        }
+        
+         var x = document.forms["myform"]["name"].value;
+        if (x == null || x == "") {
+            alert("Name must be filled out");
+            return false;
+        }
+        
+         var x = document.forms["myform"]["lastname"].value;
+        if (x == null || x == "") {
+            alert("Last Name must be filled out");
+            return false;
+        }
+
+   }
+    </script>
+    
     <body>
         <div class="container">
             <h1>Register Page</h1><p class="lead">Say something worthwhile here.</p>
             <h3 id="disp"></h3>
             <br>
-            <form role="form" action="/register" method="post" style="max-width: 300px;">
+            <form id="myform" role="form" action="/register" method="post" onsubmit="return validateForm()" style="max-width: 300px;">
                 <div class="form-group"><input name="username" placeholder="Enter Username" class="form-control" type="text">
                 </div>
                 <div class="form-group"><input name="password" placeholder="Password" class="form-control" type="password">
@@ -47,4 +87,7 @@
             </script>
         </div> 
    </body>
+        
 </html>
+
+<!--TODO: form validator -->

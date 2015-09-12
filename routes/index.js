@@ -40,7 +40,7 @@ router.get('/editor', function(req, res) {
   if (req.isAuthenticated()){
     res.render('test.html',{message : content , logs: info });
   }else{
-    res.redirect('/register');
+    res.redirect('/login');
 }
   
 });
@@ -48,10 +48,11 @@ router.get('/editor', function(req, res) {
 //To handle the text editor actions
 
 router.post('/editor', function(req, res,next) {
-    if (req.isAuthenticated()){        
-        run.shell(req.body,res);
+
+if (req.isAuthenticated()){        
+        run.shell(req,req.body,res);
   }else{
-    res.redirect('/register');
+    res.redirect('/login');
 }    
 });
 
@@ -61,7 +62,10 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res, next) {
-    Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+    Account.register(new Account({ username : req.body.username , 
+                                   email: req.body.email,
+                                   name: req.body.name,
+                                   lastname: req.body.lastname}), req.body.password, function(err, account) {
         if (err) {
           return res.render("register", {info: "Sorry. That username already exists. Try again."});
         }
@@ -71,6 +75,8 @@ router.post('/register', function(req, res, next) {
                 if (err) {
                     return next(err);
                 }
+                //create a workspace for new users
+                run.userDir(req.user.username);
                 res.redirect('/');
             });
         });
@@ -101,8 +107,5 @@ router.get('/logout', function(req, res, next) {
     });
 });
 
-router.get('/ping', function(req, res){
-    res.status(200).send("pong!");
-});
 
 module.exports = router;
