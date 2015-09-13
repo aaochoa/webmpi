@@ -1,5 +1,7 @@
 var sys = require('sys');
 var exec = require('child_process').exec;
+var nodemailer = require("nodemailer");
+
 
 
 function shell(req,content,res){ 
@@ -73,8 +75,54 @@ function htcOut(){
 
 }
 
+function rePass(res,usermail,db){
+    //db.getCollection('accounts').findOne({email: "1@yopmail.com"},{username:1 , _id:0 })
+     db.findOne({ email: usermail },function(err, user) {
+         if (err) throw err;         
+        
+         if (user) {         
+             
+                 res.send("under construction");
+    //var pass="bbhERMOxO"; ---> imposible hacer esto 
+    
+    /* 
+    var smtpTransport = nodemailer.createTransport({
+       service: "gmail",
+       auth: {
+           user: "siriusmpiweb@gmail.com",
+           pass: "siriuslab2015"
+       }
+    });
+    
+    smtpTransport.sendMail({
+       from: "siriusmpiweb@gmail.com", // sender address
+       to: email, // comma separated list of receivers
+       subject: "Recuperacion de contrasena WEB-MPI ✔", // Subject line
+       text: "Su contrasena es:   "+pass+"  Gracias  por usar el servicio de WEB-MPI" // plaintext body
+                }, function(error, response){
+               if(error){
+                   console.log(error);
+               }else{
+                   //console.log("Message sent: " + response.message);
+               }
+    });
+
+ */
+             
+         
+        }else{
+            console.log("no existe");
+            res.send("under construction");
+      }
+  // object of the user
+ 
+   });
+  
+}
+
 exports.shell = shell;
 exports.userDir = userDir;
+exports.rePass = rePass;
 
 
 

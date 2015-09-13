@@ -107,5 +107,12 @@ router.get('/logout', function(req, res, next) {
     });
 });
 
+router.post('/recovery', function(req, res) {
+    
+    run.rePass(res,req.body.email,Account);
+    
+})
+
+//rePass(email,db)
 
 module.exports = router;

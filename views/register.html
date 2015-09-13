@@ -15,13 +15,10 @@
     <link rel="stylesheet" href="../css/style.css">
     </head>
     
-    <script>
-          
-       
-    
+    <script> 
    
     function validateForm() { // TODO : best way to do this: 
-        alert(document.forms["myform"].getElementsByTagName("input"));
+
         var x = document.forms["myform"]["username"].value;
         if (x == null || x == "") {
             alert("UserName must be filled out");
