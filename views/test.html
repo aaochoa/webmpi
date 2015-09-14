@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon">
@@ -13,35 +13,36 @@
 
     <!-- Bootstrap core CSS -->
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-      
-    
+
+
     <!-- Custom styles for this template -->
     <link href="../css/jumbotron-narrow.css" rel="stylesheet">
     <link rel='stylesheet' href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel='stylesheet' href='../css/codemirror.css'>
-    <link rel="stylesheet" href="../css/tabsprimary.css"> 
-    
+    <link rel="stylesheet" href="../css/tabsprimary.css">
+    <link href="../css/pillscolor.css" rel="stylesheet">
+
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src='../js/clickcompile.js'></script>  
+    <script src='../js/clickcompile.js'></script>
     <script src='../js/codemirror.js'></script>
     <script src='../js/clike.js'></script>
   </head>
 
   <body>
-    
+
     <div class="container">
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
             <li role="presentation" class="active"><a href="/">Home</a></li>
-            <li role="presentation" class="active"><a href="/logout">Logout</a></li>  
+            <li role="presentation" class="active"><a href="/logout">Logout</a></li>
         </nav>
         <h3 class="text-muted">MPI Compiler</h3>
       </div>
 
       <div class="jumbotron">
-        
+
           <form id="form" method="post" action="/editor" accept-charset="utf-8">
             <div class="panel with-nav-tabs panel-primary">
                 <div class="panel-heading">
@@ -64,14 +65,14 @@
                                 indentUnit: 2,
                                 smartIndent: true,
                                 tabSize: 2,
-                                mode: 'text/x-csrc'               
+                                mode: 'text/x-csrc'
                                 });
                                 editor.setValue(<%- JSON.stringify(message.codebox)%>);
-                            </script>      
+                            </script>
                         </div>
-                            
+
                         <div class="tab-pane fade" id="tab2primary">
-                        <h3>Here you can choose your compiling options</h3>                       
+                        <h3>Here you can choose your compiling options</h3>
                         <label>Graphic card - Processor - HTCondor</label>
                         <br>
                         <label class="checkbox-inline">
@@ -88,10 +89,10 @@
                         <label class="checkbox-inline">
                         <input type="checkbox" id="CONDOR" name="condor" > HTCondor
                         </label>
-                        <br>    
+                        <br>
                         <label>HTCondor Submit</label>
-                        <textarea id="sub" name="submitfile"  rows="5" class="form-control"></textarea>    
-                        <br>    
+                        <textarea id="sub" name="submitfile"  rows="5" class="form-control"></textarea>
+                        <br>
                         <label>How many machines do you want to use? (for unchecked HTCondor option)</label>
                         <select id="select" name="select" class="form-control">
                           <option value="1">1</option>
@@ -101,31 +102,31 @@
                           <option value="5">5</option>
                         </select>
                         </div>
-                        
+
                         <div class="tab-pane fade" id="tab3primary">
-                        <textarea id='condorout' name="outbox" rows='10' class='form-control textcontainer'></textarea>                   
-                        </div>    
-        
+                        <textarea id='condorout' name="outbox" rows='10' class='form-control textcontainer'></textarea>
+                        </div>
+
                     </div>
                 </div>
-              </div>              
+              </div>
             <textarea readonly id='infoarea' name="logs" rows="5" class='form-control textcontainer' value="logs"></textarea>
             <br>
             <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
         </form>
-      </div>    
-        
+      </div>
+
         <script>
                 // Set all values to "save" of render
-              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;              
+              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;
               document.getElementById("CPU").checked=<%- JSON.stringify(message.cpu)%>;
-              document.getElementById("GPU").checked=<%- JSON.stringify(message.gpu)%>;              
+              document.getElementById("GPU").checked=<%- JSON.stringify(message.gpu)%>;
               document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
               document.getElementById("CONDOR").checked=<%- JSON.stringify(message.condor)%>;
               document.getElementById("condorout").value=<%- JSON.stringify(logs)%>;
               document.getElementById("sub").value=<%- JSON.stringify(message.submitfile)%>;
               document.getElementById("select").value=<%- JSON.stringify(message.select)%>;
-        </script>  
+        </script>
 
       <footer class="footer">
         <p>&copy; Sirius "Cluster" 2015</p>
