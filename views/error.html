@@ -1,3 +1,10 @@
 
   <h1>Error May</h1>
-  
+  <h3 id="msg"></h2>
+  <h3 id="error"></h2>
+<script>
+
+document.getElementById("msg").innerHTML=<%- JSON.stringify(message)%>;
+document.getElementById("error").innerHTML=<%- JSON.stringify(error)%>;
+
+</script>

@@ -1,8 +1,7 @@
 var sys = require('sys');
 var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
-
-
+var uuid = require('node-uuid');
 
 function shell(req,content,res){ 
     
@@ -75,41 +74,44 @@ function htcOut(){
 
 }
 
-function rePass(res,usermail,db){
+function sendPass(res,usermail,db){
     //db.getCollection('accounts').findOne({email: "1@yopmail.com"},{username:1 , _id:0 })
+    var weblink= "http://localhost:3000/reset";
      db.findOne({ email: usermail },function(err, user) {
          if (err) throw err;         
         
-         if (user) {         
+         if (user) {            
+                    
+                    // Find a single email
              
-                 res.send("under construction");
-    //var pass="bbhERMOxO"; ---> imposible hacer esto 
-    
-    /* 
-    var smtpTransport = nodemailer.createTransport({
-       service: "gmail",
-       auth: {
-           user: "siriusmpiweb@gmail.com",
-           pass: "siriuslab2015"
-       }
-    });
-    
-    smtpTransport.sendMail({
-       from: "siriusmpiweb@gmail.com", // sender address
-       to: email, // comma separated list of receivers
-       subject: "Recuperacion de contrasena WEB-MPI ✔", // Subject line
-       text: "Su contrasena es:   "+pass+"  Gracias  por usar el servicio de WEB-MPI" // plaintext body
-                }, function(error, response){
-               if(error){
-                   console.log(error);
-               }else{
-                   //console.log("Message sent: " + response.message);
-               }
-    });
+                    db.findOne({  email: usermail }, function(err, query) {
+                      if (err) return console.error(err);
+                      //console.dir(query.recovery);
+                        
+                        
+                var smtpTransport = nodemailer.createTransport({
+                   service: "gmail",
+                   auth: {
+                       user: "siriusmpiweb@gmail.com",
+                       pass: "siriuslab2015"
+                   }
+                });
 
- */
-             
-         
+                smtpTransport.sendMail({
+                   from: "siriusmpiweb@gmail.com", // sender address
+                   to: usermail, // comma separated list of receivers
+                   subject: "Recuperacion de contrasena WEB-MPI ✔", // Subject line
+                   text: "Codigo de verificacion para crear una nueva contrasena :   "+query.recovery+" Ingresa a "+weblink+"  Gracias  por usar el servicio de WEB-MPI" // plaintext 
+                            }, function(error, response){
+                           if(error){
+                               console.log(error);
+                           }else{
+                                    res.redirect("/");
+                                  }
+          
+                           });                 
+                    
+                    });         
         }else{
             console.log("no existe");
             res.send("under construction");
@@ -120,11 +122,53 @@ function rePass(res,usermail,db){
   
 }
 
+function changePass(res,req,db){
+    
+    db.findOne({ recovery: req.body.token },function(err, user) {   
+         if (err) throw err;         
+        
+         if (user) {
+             
+              db.findOne({  email: req.body.email }, function(err, query) {
+                      if (err) return console.error(err);
+                      console.dir(query.id);
+                  
+                  if (user) {
+
+                  //  db.update({ _id : {$eq:query.id}}, {$set: {password:req.body.newpass }}, function(err, result){
+                    //      console.log("Updated successfully");
+                      //    console.log(result);
+                        //});
+                      
+                      db.remove({ _id : {$eq:query.id}}).exec();
+                       db.register(new db({ username : query.username , 
+                                   email: query.email,
+                                   name: query.name,
+                                   lastname: query.lastname,
+                                   recovery: uuid.v4()    
+                                 }), req.body.newpass, function(err, account) {
+                                    if (err) {
+                                      return res.render("register", {info: "Database error"});
+                                    }
+                                    res.redirect("/login");                                        
+                                });
+                                                   
+                    }else{
+                       res.send("Email not valid");       
+                    }                                     
+                  
+              }); // end db.findOne 2
+                      
+         }else{ // end user   
+            res.send("Token not valid"); // security issue
+         }     
+    }); // end db.findOne 1
+}
+
 exports.shell = shell;
 exports.userDir = userDir;
-exports.rePass = rePass;
-
-
+exports.sendPass = sendPass;
+exports.changePass = changePass;
 
 // content : info control (textarea - checkbox - inputs - selects)
 // log : all outputs

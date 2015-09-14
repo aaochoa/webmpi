@@ -4,6 +4,8 @@ var Account = require('../models/account');
 var router = express.Router();
 var logs = require('../public/js/logservice');
 var run = require('../run');
+var uuid = require('node-uuid');
+
 /* GET home page. */
 
 // LOGS: route middleware that will happen on every request
@@ -65,7 +67,9 @@ router.post('/register', function(req, res, next) {
     Account.register(new Account({ username : req.body.username , 
                                    email: req.body.email,
                                    name: req.body.name,
-                                   lastname: req.body.lastname}), req.body.password, function(err, account) {
+                                   lastname: req.body.lastname,
+                                   recovery: uuid.v4()    
+                                 }), req.body.password, function(err, account) {
         if (err) {
           return res.render("register", {info: "Sorry. That username already exists. Try again."});
         }
@@ -107,11 +111,23 @@ router.get('/logout', function(req, res, next) {
     });
 });
 
+
 router.post('/recovery', function(req, res) {
+    //console.log(id);
+    run.sendPass(res,req.body.email,Account);
     
-    run.rePass(res,req.body.email,Account);
+});
+
+router.get('/reset', function(req, res) {
+    res.render("reset.html");
     
-})
+});
+
+router.post('/reset', function(req, res) {
+    //res.render("reset.html");
+    run.changePass(res,req,Account);
+});
+
 
 //rePass(email,db)
 
