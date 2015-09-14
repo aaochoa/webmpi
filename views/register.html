@@ -1,48 +1,57 @@
 <!DOCTYPE html>
-<html>
-    <head>
-   <meta charset="utf-8">
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">  
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <meta name="description" content="">
     <meta name="author" content="">
-        
-    <title></title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="../js/bootstrap.js"></script>    
-    <link rel="stylesheet" href="../css/style.css">
-    </head>
-    
-    <script> 
-   
-    function validateForm() { // TODO : best way to do this: 
+    <link rel="icon">
+
+    <title>Sign In</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Custom styles for this template -->
+    <link href="../css/jumbotron-narrow.css" rel="stylesheet">
+    <link rel='stylesheet' href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/tabsprimary.css">
+
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  </head>
+
+    <script>
+
+    function validateForm() { // TODO : best way to do this:
 
         var x = document.forms["myform"]["username"].value;
         if (x == null || x == "") {
             alert("UserName must be filled out");
             return false;
         }
-        
+
          var x = document.forms["myform"]["password"].value;
         if (x == null || x == "") {
             alert("password must be filled out");
             return false;
         }
-        
+
          var x = document.forms["myform"]["email"].value;
         if (x == null || x == "") {
             alert("email must be filled out");
             return false;
         }
-        
+
          var x = document.forms["myform"]["name"].value;
         if (x == null || x == "") {
             alert("Name must be filled out");
             return false;
         }
-        
+
          var x = document.forms["myform"]["lastname"].value;
         if (x == null || x == "") {
             alert("Last Name must be filled out");
@@ -51,40 +60,84 @@
 
    }
     </script>
-    
+
     <body>
-        <div class="container">
-            <h1>Register Page</h1><p class="lead">Say something worthwhile here.</p>
-            <h3 id="disp"></h3>
-            <br>
-            <form id="myform" role="form" action="/register" method="post" onsubmit="return validateForm()" style="max-width: 300px;">
-                <div class="form-group"><input name="username" placeholder="Enter Username" class="form-control" type="text">
+
+              <div class="container">
+                <h3 id="disp"></h3>
+                <div class="header clearfix">
+                  <nav>
+                    <ul class="nav nav-pills pull-right">
+                      <li role="presentation" class="active"><a href="/">Home</a></li>
+                      <li role="presentation"><a href="/login">Log In
+                          <span class="glyphicon glyphicon-user" aria-hidden="true"></span></a></li>
+                  </nav>
+                  <h3 class="text-muted">MPI Compiler</h3>
                 </div>
-                <div class="form-group"><input name="password" placeholder="Password" class="form-control" type="password">
-                </div>
-                <div class="form-group">
-                    <input name="email" placeholder="Enter Email" class="form-control" type="text">
-                </div>
-                
-                  <div class="form-group">
-                    <input name="name" placeholder="Enter Name" class="form-control" type="text">
-                </div>
-                             
-                 <div class="form-group">
-                    <input name="lastname" placeholder="Enter Last Name" class="form-control" type="text">
-                </div>
-                
-                <button type="submit" class="btn btn-default">Submit</button>&nbsp;<a href="http://localhost:3000/">
-                <button type="button" class="btn btn-primary">Cancel</button>
-                </a>
-            </form>
-            <br>
-            <script>
-                document.getElementById("disp").innerHTML=<%- JSON.stringify(info) %>;
-            </script>
-        </div> 
-   </body>
-        
-</html>
+
+                <div class="jumbotron">
+
+                  <form id="myform" role="form" action="/register" method="post" onsubmit="return validateForm()" style="max-width: 800px;">
+                          <div class="panel with-nav-tabs panel-primary">
+                          <div class="panel-heading">
+                                  <ul class="nav nav-tabs">
+                                      <li class="active"><a href="#tab1primary" data-toggle="tab">Register</a></li>
+                                  </ul>
+                          </div>
+                          <div class="panel-body">
+                          <div class="tab-content">
+                          <div class="tab-pane fade in active" id="tab1primary">
+
+                            <div class="form-group"><input name="username" placeholder="Enter Username" class="form-control" type="text">
+                            </div>
+                            <div class="form-group"><input name="password" placeholder="Password" class="form-control" type="password">
+                            </div>
+                            <div class="form-group">
+                                <input name="email" placeholder="Enter Email" class="form-control" type="text">
+                            </div>
+
+                              <div class="form-group">
+                                <input name="name" placeholder="Enter Name" class="form-control" type="text">
+                            </div>
+
+                             <div class="form-group">
+                                <input name="lastname" placeholder="Enter Last Name" class="form-control" type="text">
+                            </div>
+
+
+                            </a>
+
+                          <br>
+                        <div class="modal fade" id="myModal">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">close</button>
+                                <h4 class="modal-title">MPI Compiler</h4>
+                              </div>
+                            <div class="modal-body">
+                              <h2>Are you sure you want to be part of this platform?</h2>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="submit" class="btn btn-success">Submit</button>&nbsp;<a href="http://localhost:3000/">
+                            </div>
+                          </div>
+                        </div>
+                  </div>
+                  </div>
+              </div>
+          </div>
+              </div>
+              <a data-toggle="modal" href="#myModal" class="btn btn-success">Sign In</a>
+               </form>
+
+            </div>
+
+                <footer class="footer">
+                  <p>&copy; Sirius "Cluster" 2015</p>
+                </footer>
+              </div>
+            </body>
+          </html>
 
 <!--TODO: form validator -->

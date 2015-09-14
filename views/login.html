@@ -1,90 +1,133 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html lang="en">
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
     <meta name="description" content="">
     <meta name="author" content="">
-    <title></title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="../js/bootstrap.js"></script>    
-    <link rel="stylesheet" href="../css/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1>Login Page</h1>
-            <p class="lead">Say something worthwhile here.</p>
-            <br>
-            <form id="form" role="form" action="/login" method="post" style="max-width: 300px;">
-                <div class="form-group">
-                    <input name="username" placeholder="Enter Username" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <input name="password" placeholder="Password" class="form-control" type="password">
-                </div>          
-                <button type="submit" class="btn btn-default">Submit</button>&nbsp;
-                <a href="http://localhost:3000/">
-                <button type="button" class="btn btn-primary">Cancel</button>
-                </a>
-            </form>
-        </div>
-        
-<div class="container">
-  <a href="#" data-target="#pwdModal" data-toggle="modal">Forgot my password</a>
-</div>
+    <link rel="icon">
 
-<!--modal-->
-<div id="pwdModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog">
-  <div class="modal-content">
-      <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h1 class="text-center">What's My Password?</h1>
+    <title>Log In</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Custom styles for this template -->
+    <link href="../css/jumbotron-narrow.css" rel="stylesheet">
+    <link rel='stylesheet' href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/tabsprimary.css">
+
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="/">Home</a></li>
+            <li role="presentation"><a href="/register">Sign In
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span></a></li>
+        </nav>
+        <h3 class="text-muted">MPI Compiler</h3>
       </div>
-      <div class="modal-body">
-          <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="text-center">
-                          
-                          <p>If you have forgotten your password you can reset it here.</p>
-                            <div class="panel-body">
-                                <fieldset>
-                                    <form id="otherform" method="post" action="/recovery" onsubmit="return validateForm()">
-                                    <div class="form-group">                                        
-                                        <input class="form-control input-lg" placeholder="E-mail Address" name="email" type="email">
-                                                                             
-                                    </div>
-                                    <input class="btn btn-lg btn-primary btn-block" value="Send My Password" type="submit">
-                                        </form>   
-                                </fieldset>
-                            </div>
+
+      <div class="jumbotron">
+
+        <form id="form" role="form" action="/login" method="post" style="max-width: 800px;">
+              <div class="panel with-nav-tabs panel-primary">
+                <div class="panel-heading">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab1primary" data-toggle="tab">Please, Log In</a></li>
+                        </ul>
+                </div>
+                <div class="panel-body">
+                        <div class="tab-content">
+                        <div class="tab-pane fade in active" id="tab1primary">
+                          <div class="form-group">
+                              <input name="username" placeholder="Enter Username" class="form-control" type="text">
+                          </div>
+                          <div class="form-group">
+                              <input name="password" placeholder="Password" class="form-control" type="password">
+                          </div>
+
+                      </form>
                         </div>
                     </div>
                 </div>
-            </div>
+              </div>
+              <button type="submit" class="btn btn-success">Submit</button>&nbsp;
+              <a href="http://localhost:3000/">
+              <button type="button" class="btn btn-primary ">Cancel</button>
+              </a>
+        </form>
+
+
+      <div class="container">
+      <br>
+      <a href="#" data-target="#pwdModal" data-toggle="modal">Forgot my password</a>
+      </div>
+
+      <!--modal-->
+      <div id="pwdModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+      <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h1 class="text-center">What's My Password?</h1>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-12">
+              <div class="panel panel-default">
+                  <div class="panel-body">
+                      <div class="text-center">
+
+                        <p>If you have forgotten your password you can reset it here.</p>
+                          <div class="panel-body">
+                              <fieldset>
+                                  <form id="otherform" method="post" action="/recovery" onsubmit="return validateForm()">
+                                  <div class="form-group">
+                                      <input class="form-control input-lg" placeholder="E-mail Address" name="email" type="email">
+
+                                  </div>
+                                  <input class="btn btn-lg btn-primary btn-block" value="Send My Password" type="submit">
+                                      </form>
+                              </fieldset>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
       </div>
       <div class="modal-footer">
-          <div class="col-md-12">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		  </div>	
+        <div class="col-md-12">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
       </div>
-  </div>
-  </div>
-</div>
-        <script>
-        function validateForm() { // TODO : best way to do this: 
+      </div>
+      </div>
+      </div>
+      </div>
+      </div>
+      <script>
+      function validateForm() { // TODO : best way to do this:
 
-            var x = document.forms["otherform"]["email"].value;
-            if (x == null || x == "") {
-                alert("Email must be filled out");
-                return false;
-            }
-        
-        }        
-        </script>
-    </body>
+          var x = document.forms["otherform"]["email"].value;
+          if (x == null || x == "") {
+              alert("Email must be filled out");
+              return false;
+          }
+
+      }
+      </script>
+
+      <footer class="footer">
+        <p>&copy; Sirius "Cluster" 2015</p>
+      </footer>
+    </div>
+  </body>
 </html>
