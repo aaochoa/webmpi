@@ -36,8 +36,12 @@
       </div>
 
       <div class="jumbotron">
-
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+      <h1>MPI Online compiler</h1>
+      </div>
+      <script>
+          document.getElementById("username").innerHTML=<%- JSON.stringify(user)%>;
+      </script>
+      <div id="myCarousel" class="carousel slide" data-ride="carousel">
       <!-- Indicators -->
       <ol class="carousel-indicators">
         <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
@@ -91,13 +95,6 @@
         <span class="sr-only">Next</span>
       </a>
     </div>
-      <h1>MPI Online compiler</h1>
-      <h2>Welcome!</h2>
-        </div>
-      <script>
-          document.getElementById("username").innerHTML=<%- JSON.stringify(user)%>;
-      </script>
-
 
       <footer class="footer">
         <p>&copy; Sirius "Cluster" 2015</p>
