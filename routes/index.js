@@ -10,22 +10,22 @@ var uuid = require('node-uuid');
 
 // LOGS: route middleware that will happen on every request
 
-router.use(function(req,res,next){    
+router.use(function(req,res,next){
     //console.log(req.method,req.url);
-   // logs.savelog(req.url);   
+   // logs.savelog(req.url);
     next();
     // continue doing what we were doing and go to the route
 });
 
 
 router.get('/', function (req, res) {
-    
+
      if(typeof req.user === "undefined"){
-         res.render('index', { user : "Anon-User" }); 
+         res.render('index', { user : "Anon-User" });
     }else{
      res.render('index', { user : req.user.username })
     }
-    
+
 });
 
 router.get('/editor', function(req, res) {
@@ -37,54 +37,65 @@ router.get('/editor', function(req, res) {
   content.condor = false;
   content.submitfile = "submit file";
   content.select = "1";
-  var info = " Your output area ";    
-  
+  var info = " Your output area ";
+
   if (req.isAuthenticated()){
     res.render('test.html',{message : content , logs: info });
   }else{
     res.redirect('/login');
 }
-  
+
 });
 
 //To handle the text editor actions
 
 router.post('/editor', function(req, res,next) {
 
-if (req.isAuthenticated()){        
+if (req.isAuthenticated()){
         run.shell(req,req.body,res);
   }else{
     res.redirect('/login');
-}    
+}
 });
 
 
 router.get('/register', function(req, res) {
+  if (!req.isAuthenticated()) {
     res.render('register', {info: " " });
+  } else {
+    req.logout();
+    req.session.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+  }
 });
 
 router.post('/register', function(req, res, next) {
-    Account.register(new Account({ username : req.body.username , 
-                                   email: req.body.email,
-                                   name: req.body.name,
-                                   lastname: req.body.lastname,
-                                   recovery: uuid.v4()    
-                                 }), req.body.password, function(err, account) {
-        if (err) {
-          return res.render("register", {info: "Sorry. That username already exists. Try again."});
-        }
 
-        passport.authenticate('local')(req, res, function () {
-            req.session.save(function (err) {
-                if (err) {
-                    return next(err);
-                }
-                //create a workspace for new users
-                run.userDir(req.user.username);
-                res.redirect('/');
-            });
-        });
-    });
+      Account.register(new Account({ username : req.body.username ,
+                                     email: req.body.email,
+                                     name: req.body.name,
+                                     lastname: req.body.lastname,
+                                     recovery: uuid.v4()
+                                   }), req.body.password, function(err, account) {
+          if (err) {
+            return res.render("register", {info: "Sorry. That username already exists. Try again."});
+          }
+
+          passport.authenticate('local')(req, res, function () {
+              req.session.save(function (err) {
+                  if (err) {
+                      return next(err);
+                  }
+                  //create a workspace for new users
+                  run.userDir(req.user.username);
+                  res.redirect('/');
+              });
+          });
+      });
 });
 
 
@@ -115,12 +126,12 @@ router.get('/logout', function(req, res, next) {
 router.post('/recovery', function(req, res) {
     //console.log(id);
     run.sendPass(res,req.body.email,Account);
-    
+
 });
 
 router.get('/reset', function(req, res) {
     res.render("reset.html");
-    
+
 });
 
 router.post('/reset', function(req, res) {
