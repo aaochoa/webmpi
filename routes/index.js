@@ -139,6 +139,24 @@ router.post('/reset', function(req, res) {
     run.changePass(res,req,Account);
 });
 
+//==============================================================================
+//Just to test an admin page layout
+router.get('/admin', function(req, res) {
+    res.render("admin/admin.html");
+
+});
+
+router.get('/forms', function(req, res) {
+    res.render("admin/forms.html");
+
+});
+
+router.get('/tables', function(req, res) {
+    res.render("admin/tables.html");
+
+});
+//==============================================================================
+
 
 //rePass(email,db)
 
