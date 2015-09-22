@@ -86,4 +86,19 @@ app.use(function(err, req, res, next) {
 });
 
 
+
+
+
+/*
+var http        = require("http"),
+    terminal    = require("web-terminal");
+ 
+    var other = http.createServer(function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/plain"});
+        res.end("Hello World\n");
+    });
+
+terminal(other);
+    console.log("Web-terminal accessible at http://127.0.0.1:1337/terminal");
+*/
 module.exports = app;

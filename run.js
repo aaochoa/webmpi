@@ -129,11 +129,7 @@ function changePass(res,req,db){
         
          if (user) {
              
-              db.findOne({  email: req.body.email }, function(err, query) {
-                      if (err) return console.error(err);
-                      console.dir(query.id);
-                  
-                  if (user) {
+              if(user.email === req.body.email ){                    
 
                   //  db.update({ _id : {$eq:query.id}}, {$set: {password:req.body.newpass }}, function(err, result){
                     //      console.log("Updated successfully");
@@ -156,14 +152,13 @@ function changePass(res,req,db){
                     }else{
                        res.send("Email not valid");       
                     }                                     
-                  
-              }); // end db.findOne 2
                       
          }else{ // end user   
             res.send("Token not valid"); // security issue
          }     
     }); // end db.findOne 1
 }
+
 
 exports.shell = shell;
 exports.userDir = userDir;
