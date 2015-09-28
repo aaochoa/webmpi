@@ -86,19 +86,24 @@ app.use(function(err, req, res, next) {
 });
 
 
+var tty = require('tty.js');
 
+var terminal = tty.createServer({
+  shell: 'bash-control',
+  users: {
+    admin: 'pass'
+  },
+  port: 3201
+});
 
+terminal.listen();
 
 /*
+
 var http        = require("http"),
     terminal    = require("web-terminal");
  
-    var other = http.createServer(function (req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end("Hello World\n");
-    });
-
-terminal(other);
+terminal(app.listen(1222));
     console.log("Web-terminal accessible at http://127.0.0.1:1337/terminal");
 */
 module.exports = app;
