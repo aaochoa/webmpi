@@ -3,9 +3,15 @@ var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
 var uuid = require('node-uuid');
 
+
+var online_users=0;
+var task=0;
+
 function shell(req,content,res){ 
     
       jsonToValue(content); // change undefined json value to false.
+      task++;    
+       
     
       if( content.codebox.search(/.*system\(.*/) == -1){
           
@@ -24,13 +30,15 @@ function shell(req,content,res){
                 log = 'exec error: ' + error;
               }
                 res.render("test.html",{message : content , logs : log});
-                return;  
+                return; 
+                task--;  
             });
                 
         }else{
             log = "You must not use system instructions"
             res.render("test.html",{message : content , logs : log});
             return;
+            task--; 
         
         }
 }
@@ -158,6 +166,17 @@ function changePass(res,req,db){
          }     
     }); // end db.findOne 1
 }
+
+function usercount(op){
+    if(op===1){
+        a++;
+    }else{
+        a--;
+    }
+    
+}
+
+
 
 
 exports.shell = shell;

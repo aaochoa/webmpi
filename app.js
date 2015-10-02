@@ -89,7 +89,7 @@ app.use(function(err, req, res, next) {
 var tty = require('tty.js');
 
 var terminal = tty.createServer({
-  shell: 'bash-control',
+  shell: 'bash',
   users: {
     admin: 'pass'
   },

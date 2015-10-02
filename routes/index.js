@@ -166,7 +166,7 @@ router.get('/tables', function(req, res) {
 
 router.get('/forms', function(req, res) {
       
-     if(req.user.isadmin===true && req.user.isadmin===true  ){
+     if(req.isAuthenticated() && req.user.isadmin===true  ){
         res.render("admin/forms.html");
         //run.term;  
      }else{
