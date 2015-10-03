@@ -2,19 +2,22 @@ var express = require('express');
 var passport = require('passport');
 var Account = require('../models/account');
 var router = express.Router();
-var logs = require('../public/js/logservice');
+var logsfile = require('../public/js/logservice');
 var run = require('../run');
 var uuid = require('node-uuid');
 var app = require('../app');
+var fs = require("fs");
 
-
+run.usercount();
 /* GET home page. */
 
 // LOGS: route middleware that will happen on every request
 
+
+
 router.use(function(req,res,next){
-    //console.log(req.method,req.url);
-   // logs.savelog(req.url);
+    console.log(req.method,req.url);
+    logsfile.savelog(req.url);
     next();
     // continue doing what we were doing and go to the route
 });
@@ -127,9 +130,7 @@ router.get('/logout', function(req, res, next) {
 
 
 router.post('/recovery', function(req, res) {
-    //console.log(id);
     run.sendPass(res,req.body.email,Account);
-
 });
 
 router.get('/reset', function(req, res) {
@@ -138,7 +139,6 @@ router.get('/reset', function(req, res) {
 });
 
 router.post('/reset', function(req, res) {
-    //res.render("reset.html");
     run.changePass(res,req,Account);
 });
 
@@ -146,17 +146,25 @@ router.post('/reset', function(req, res) {
 //Just to test an admin page layout
 router.get('/admin', function(req, res) {
     if (req.isAuthenticated() && req.user.isadmin===true ){
-
-        res.render("admin/admin.html"); 
+        var content=req.body;
+        content.name = req.user.username;
+        content.tasks = run.adminview(1,Account);
+        content.users = run.adminview(2,Account);
+        content.orders = run.adminview(3,Account);
+        content.support = run.adminview(4,Account);
+        res.render('admin/admin.html',{header : content });
      }else{
          res.send("unauthorized area");
      }      
 });
 
-router.get('/tables', function(req, res) {
+router.get('/logs', function(req, res) {
     if (req.isAuthenticated() && req.user.isadmin===true ){
-  
-        res.render("admin/tables.html");
+        var content=req.body;
+        content.name = req.user.username;
+        content.logs = fs.readFileSync( "./logs.txt","utf8");
+        console.log(content.log);
+        res.render("admin/logs.html",{header : content });
         //run.term;  
      }else{
          res.send("unauthorized area");

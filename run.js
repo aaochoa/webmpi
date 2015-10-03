@@ -2,10 +2,17 @@ var sys = require('sys');
 var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
 var uuid = require('node-uuid');
-
-
-var online_users=0;
+var userModel = require('./models/account');
 var task=0;
+var nusers;
+
+function usercount(){
+    userModel.count({}, function (err, count) { 
+    nusers=count;
+        //console.log("users "+ nusers);
+    });  
+}
+ 
 
 function shell(req,content,res){ 
     
@@ -30,15 +37,17 @@ function shell(req,content,res){
                 log = 'exec error: ' + error;
               }
                 res.render("test.html",{message : content , logs : log});
+                task--; 
                 return; 
-                task--;  
+                 
             });
                 
         }else{
             log = "You must not use system instructions"
             res.render("test.html",{message : content , logs : log});
-            return;
             task--; 
+            return;
+            
         
         }
 }
@@ -167,12 +176,23 @@ function changePass(res,req,db){
     }); // end db.findOne 1
 }
 
-function usercount(op){
+function adminview(op,userModel){
     if(op===1){
-        a++;
-    }else{
-        a--;
+        return task;
     }
+    if(op===2){
+        
+        return nusers;
+    }
+    if (op===3){
+        // pending
+        return 0;
+    }
+     if (op===4){
+        // pending
+         return 0;
+    }
+    
     
 }
 
@@ -183,6 +203,9 @@ exports.shell = shell;
 exports.userDir = userDir;
 exports.sendPass = sendPass;
 exports.changePass = changePass;
+exports.adminview = adminview;
+exports.usercount = usercount;
+
 
 // content : info control (textarea - checkbox - inputs - selects)
 // log : all outputs
