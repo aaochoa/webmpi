@@ -9,6 +9,8 @@ var app = require('../app');
 var fs = require("fs");
 
 run.usercount();
+run.userpending(Account);
+
 /* GET home page. */
 
 // LOGS: route middleware that will happen on every request
@@ -16,8 +18,8 @@ run.usercount();
 
 
 router.use(function(req,res,next){
-    console.log(req.method,req.url);
-    logsfile.savelog(req.url);
+    //console.log(req.method,req.url);
+    //logsfile.savelog(req.url);
     next();
     // continue doing what we were doing and go to the route
 });
@@ -79,13 +81,16 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res, next) {
-
+      
+  
+    
       Account.register(new Account({ username : req.body.username ,
                                      email: req.body.email,
                                      name: req.body.name,
                                      lastname: req.body.lastname,
                                      recovery: uuid.v4(),
-                                     isadmin : false
+                                     isadmin : false,
+                                     state : false 
                                    }), req.body.password, function(err, account) {
           if (err) {
             return res.render("register", {info: "Sorry. That username already exists. Try again."});
@@ -99,6 +104,8 @@ router.post('/register', function(req, res, next) {
                   //create a workspace for new users
                   run.userDir(req.user.username);
                   res.redirect('/');
+                  run.usercount();
+                  run.userpending(Account);
               });
           });
       });
@@ -163,8 +170,17 @@ router.get('/logs', function(req, res) {
         var content=req.body;
         content.name = req.user.username;
         content.logs = fs.readFileSync( "./logs.txt","utf8");
-        console.log(content.log);
         res.render("admin/logs.html",{header : content });
+        //run.term;  
+     }else{
+         res.send("unauthorized area");
+     }
+
+});
+
+router.get('/users', function(req, res) {
+    if (req.isAuthenticated() && req.user.isadmin===true ){
+        run.userstate(req,res,Account);
         //run.term;  
      }else{
          res.send("unauthorized area");

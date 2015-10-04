@@ -3,8 +3,10 @@ var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
 var uuid = require('node-uuid');
 var userModel = require('./models/account');
+
 var task=0;
 var nusers;
+var orders;
 
 function usercount(){
     userModel.count({}, function (err, count) { 
@@ -13,6 +15,12 @@ function usercount(){
     });  
 }
  
+function userpending(userModel){
+    userModel.count({ 'state': false },function (err, count) { 
+    orders=count;    
+    });
+}
+
 
 function shell(req,content,res){ 
     
@@ -186,7 +194,7 @@ function adminview(op,userModel){
     }
     if (op===3){
         // pending
-        return 0;
+        return orders;
     }
      if (op===4){
         // pending
@@ -197,6 +205,29 @@ function adminview(op,userModel){
 }
 
 
+function userstate(req,res,userModel){
+
+    userModel.find({ 'state': false }, function (err, docs) {
+       //console.log(docs);
+        var string="";
+        var content=req.body;
+        content.name = req.user.username;        
+        
+        for(var i = 0; i < docs.length; i++) {
+        var obj =docs[i];
+
+        var temp= "[username: " + obj.username + "] [name: " + obj.name +" ] [lastname: "+ obj.lastname + "] [email: " + obj.email + "] \n";
+        string= string + temp;    
+        //temp.concat(obj.name);
+        //temp.concat(obj.lastname);
+        //temp.concat(obj.email);
+    }
+        content.info = string;
+        console.log(string);
+        res.render("admin/users.html",{header : content });
+    });
+
+}
 
 
 exports.shell = shell;
@@ -205,7 +236,8 @@ exports.sendPass = sendPass;
 exports.changePass = changePass;
 exports.adminview = adminview;
 exports.usercount = usercount;
-
+exports.userpending = userpending;
+exports.userstate = userstate;
 
 // content : info control (textarea - checkbox - inputs - selects)
 // log : all outputs

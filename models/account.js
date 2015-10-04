@@ -10,6 +10,7 @@ var Account = new Schema({
     lastname:String,
     recovery:String,
     isadmin:Boolean,
+    state:Boolean,
 });
 
 Account.plugin(passportLocalMongoose);
