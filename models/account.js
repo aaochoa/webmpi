@@ -11,6 +11,10 @@ var Account = new Schema({
     recovery:String,
     isadmin:Boolean,
     state:Boolean,
+    comment:[{
+        date:String, 
+        subject: String, 
+        body : String }],
 });
 
 Account.plugin(passportLocalMongoose);

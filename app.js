@@ -54,6 +54,7 @@ mongoose.connect('mongodb://127.0.0.1/passport_local_mongoose_express4',
     }
 });
 
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

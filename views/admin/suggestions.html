@@ -64,11 +64,11 @@
                     <li>
                         <a href="/forms"><i class="fa fa-fw fa-edit"></i> Forms</a>
                     </li>
-                    <li class="active">
+                    <li >
                         <a href="/users"><i class="fa fa-fw fa-user"></i> users</a>
                     </li>
-                     <li>
-                        <a href="/suggestions"><i class="fa fa-fw fa-envelope"></i> sugestions</a>
+                    <li class="active">
+                        <a href="/suggestions"><i class="fa fa-fw fa-envelope"></i> suggestions</a>
                     </li>
                 </ul>
             </div>
@@ -103,33 +103,19 @@
                             <div class="panel-heading">
                                 <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> User activation</h3>
                             </div>
-                            <div id="user" class="panel-body" style="white-space: pre">  </div>                                
+                            <div id="mesagge" class="panel-body" style="white-space: pre">  </div>                                
                             </div>
                             
-                            <form id="form" method="post" action="/users" accept-charset="utf-8">
+                            <form id="form" method="post" action="/suggestions" accept-charset="utf-8">
                                 <div class="form-group">
-                                    <input class="form-control" name="username">
-                                    <p class="help-block">Type the username and click to activate user</p>
+                                    <input class="form-control" name="username"  placeholder="User" >
+                                    <input class="form-control" name="id"  placeholder="id" >
+                                    <p class="help-block">Type the username and id of suggestion to solve</p>
                                 </div>                                
-                                <button type="submit" class="btn btn-success">Activate user</button>
+                                <button type="submit" class="btn btn-success">Solve sugestion</button>
                                 
                             </form>
-                            <br>
-                        
-                      
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Registered Users</h3>
-                                </div>    
-                                <div id="listuser" class="panel-body" style="white-space: pre">  </div>
-                            </div>    
-                            <form id="form2" method="post" action="/rmusers" accept-charset="utf-8">
-                                <div class="form-group">
-                                    <input class="form-control" name="rmusername">
-                                    <p class="help-block">Type the username and click to remove user</p>
-                                </div>                                
-                                <button type="submit" class="btn btn-success">Remove user</button>
-                            </form>    
+                            <br>  
                         </div>
                     </div>
                
@@ -152,8 +138,7 @@
     
     <script>      // Set all values 
           document.getElementById("name").innerHTML="  "+<%- JSON.stringify(header.name)%>;
-          document.getElementById("user").innerHTML=<%- JSON.stringify(header.info)%>;
-          document.getElementById("listuser").innerHTML=<%- JSON.stringify(header.list)%>;         
+          document.getElementById("mesagge").innerHTML=<%- JSON.stringify(header.info)%>;      
     </script>
 
 </body>

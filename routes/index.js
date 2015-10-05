@@ -10,6 +10,7 @@ var fs = require("fs");
 
 run.usercount();
 run.userpending(Account);
+run.suggcount(Account);
 
 /* GET home page. */
 
@@ -149,9 +150,28 @@ router.post('/reset', function(req, res) {
     run.changePass(res,req,Account);
 });
 
+router.get('/sugmail', function(req, res,next) {
+
+    if (req.isAuthenticated()){
+            res.render('sugmail.html');
+        }else{
+            res.redirect('/login');
+        }
+});
+
+router.post('/sugmail', function(req, res,next) {
+
+    if (req.isAuthenticated()){
+            run.savesuggestion(req,res,Account);        
+        }else{
+            res.redirect('/login');
+        }
+});
+
 //==============================================================================
 //Just to test an admin page layout
 router.get('/admin', function(req, res) {
+       run.suggcount(Account);
     if (req.isAuthenticated() && req.user.isadmin===true ){
         var content=req.body;
         content.name = req.user.username;
@@ -170,8 +190,7 @@ router.get('/logs', function(req, res) {
         var content=req.body;
         content.name = req.user.username;
         content.logs = fs.readFileSync( "./logs.txt","utf8");
-        res.render("admin/logs.html",{header : content });
-        //run.term;  
+        res.render("admin/logs.html",{header : content });  
      }else{
          res.send("unauthorized area");
      }
@@ -180,13 +199,52 @@ router.get('/logs', function(req, res) {
 
 router.get('/users', function(req, res) {
     if (req.isAuthenticated() && req.user.isadmin===true ){
-        run.userstate(req,res,Account);
-        //run.term;  
+        run.userstate(req,res,Account);  
      }else{
          res.send("unauthorized area");
      }
 
 });
+
+
+router.post('/users', function(req, res) {
+    if (req.isAuthenticated() && req.user.isadmin===true ){
+        run.activateuser(req,res,Account); 
+     }else{
+         res.send("unauthorized area");
+     }
+
+});
+
+router.post('/rmusers', function(req, res) {
+    if (req.isAuthenticated() && req.user.isadmin===true ){
+        run.removeuser(req,res,Account);  
+     }else{
+         res.send("unauthorized area");
+     }
+
+});
+
+
+router.get('/suggestions', function(req, res) {
+      
+     if(req.isAuthenticated() && req.user.isadmin===true  ){
+            run.usersuggs(req,res,Account);
+
+     }else{
+         res.send("unauthorized area");
+     }      
+});
+
+router.post('/suggestions', function(req, res) {
+      
+     if(req.isAuthenticated() && req.user.isadmin===true  ){
+            run.removesugg(req,res,Account);
+     }else{
+         res.send("unauthorized area");
+     }      
+});
+
 
 router.get('/forms', function(req, res) {
       
@@ -195,16 +253,11 @@ router.get('/forms', function(req, res) {
         //run.term;  
      }else{
          res.send("unauthorized area");
-     }      
-
-
+     }
 });
 
 
 //==============================================================================
 
-
-
-//rePass(email,db)
 
 module.exports = router;

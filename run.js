@@ -7,11 +7,11 @@ var userModel = require('./models/account');
 var task=0;
 var nusers;
 var orders;
+var support;
 
 function usercount(){
     userModel.count({}, function (err, count) { 
     nusers=count;
-        //console.log("users "+ nusers);
     });  
 }
  
@@ -20,6 +20,7 @@ function userpending(userModel){
     orders=count;    
     });
 }
+
 
 
 function shell(req,content,res){ 
@@ -188,17 +189,15 @@ function adminview(op,userModel){
     if(op===1){
         return task;
     }
-    if(op===2){
-        
+    if(op===2){        
         return nusers;
     }
     if (op===3){
-        // pending
         return orders;
     }
      if (op===4){
         // pending
-         return 0;
+         return support;
     }
     
     
@@ -206,29 +205,172 @@ function adminview(op,userModel){
 
 
 function userstate(req,res,userModel){
-
-    userModel.find({ 'state': false }, function (err, docs) {
+    var string="";
+    var stringuser="";
+    var content=req.body;
+    
+     userModel.find({}, function (err, all) {
+        
+         for(var i = 0; i < all.length; i++) {
+            var user=all[i];
+             
+             var t= "[username: " + user.username + "] [name: " + user.name +" ] [lastname: "+ user.lastname + "] [email: " + user.email + "] \n";
+        stringuser= stringuser + t;
+            
+     
+        }
+         content.list = stringuser;      
+         
+          userModel.find({ 'state': false }, function (err, docs) {
        //console.log(docs);
-        var string="";
-        var content=req.body;
+        
         content.name = req.user.username;        
         
         for(var i = 0; i < docs.length; i++) {
         var obj =docs[i];
 
         var temp= "[username: " + obj.username + "] [name: " + obj.name +" ] [lastname: "+ obj.lastname + "] [email: " + obj.email + "] \n";
-        string= string + temp;    
-        //temp.concat(obj.name);
-        //temp.concat(obj.lastname);
-        //temp.concat(obj.email);
+        string= string + temp;       
     }
         content.info = string;
-        console.log(string);
+        
         res.render("admin/users.html",{header : content });
-    });
+    }); 
+         
+         
+         
+         
+     }); // end find all users
+    
+   
 
 }
 
+
+function activateuser(req,res,userModel){
+    var content=req.body;
+    
+    userModel.update({ username: req.body.username },{state: true} ,function(err, user) {   
+         if (err) throw err;         
+        
+         if (user) {
+             
+             orders--;
+             userstate(req,res,userModel);
+         
+         }else{
+            res.send("invalid username to update");
+         }
+    });
+}
+
+function removeuser(req,res,userModel){
+    
+    var content=req.body;
+    
+    userModel.find({ username: req.body.rmusername }).remove(function(err, user) {   
+         if (err) throw err;         
+        
+         if (user) {             
+             
+             nusers--;
+             userstate(req,res,userModel);
+         
+         }else{
+            res.send("invalid username to remove");
+         }
+    });
+}
+
+
+
+function savesuggestion(req,res,userModel){
+    var content=req.body;
+    userModel.update({ username: req.user.username },  
+    {
+        '$push': {
+                  comment : {  
+                                'date': req.body.date,
+                                'subject': req.body.subject,
+                                'body': req.body.body    
+    }}} ,function(err, user) {   
+         if (err) throw err;         
+        
+         if (user) {
+             support++;
+             res.send('Suggestion added');
+             //userstate(req,res,userModel);
+         
+         }else{
+            res.send("invalid username to update");
+         }
+        });
+}
+
+
+
+
+function usersuggs(req,res,userModel){
+
+    var string="";
+    var content=req.body;
+    
+    userModel.find({ }, function (err, docs) {        
+        content.name = req.user.username;        
+        
+        for(var i = 0; i < docs.length; i++) {
+        var obj =docs[i];
+        
+        if(obj.comment.length>0){      
+            
+         obj.comment.forEach(function (item) {
+             if(item!=undefined){
+                 var temp=  "[username: " + obj.username + "] "+ item + "] \n";
+                 string= string + temp;
+             }
+            
+             
+            });   
+        
+        }
+    }
+        content.info = string;
+        
+        res.render("admin/suggestions.html",{header : content });
+    }); 
+         
+}
+
+function suggcount(userModel){
+    
+     userModel.find({ }, function (err, docs) {
+     
+          for(var i = 0; i < docs.length; i++) {
+            var obj =docs[i];
+            support = obj.comment.length;
+          }     
+     });
+}
+
+
+function removesugg(req,res,UserModel){
+
+     var content=req.body;
+    //Article.findByIdAndUpdate(   
+        userModel.update({ username: req.body.username },  
+        {  $pull: { 'comment' : { _id: req.body.id } } },function(err, model) {   
+             if (err) throw err;         
+
+             if (model) {
+                 console.log(model);
+                 support--;
+                 usersuggs(req,res,userModel);
+
+             }else{
+                res.send("invalid id");
+             }
+        });        
+}
 
 exports.shell = shell;
 exports.userDir = userDir;
@@ -238,6 +380,12 @@ exports.adminview = adminview;
 exports.usercount = usercount;
 exports.userpending = userpending;
 exports.userstate = userstate;
+exports.activateuser = activateuser;
+exports.removeuser = removeuser;
+exports.savesuggestion = savesuggestion;
+exports.usersuggs = usersuggs;
+exports.suggcount = suggcount;
+exports.removesugg = removesugg;
 
 // content : info control (textarea - checkbox - inputs - selects)
 // log : all outputs
