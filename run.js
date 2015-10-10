@@ -3,6 +3,7 @@ var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
 var uuid = require('node-uuid');
 var userModel = require('./models/account');
+ var fs = require('fs');
 
 var task=0;
 var nusers;
@@ -25,25 +26,72 @@ function userpending(userModel){
 
 function shell(req,content,res){ 
     
-      jsonToValue(content); // change undefined json value to false.
-      task++;    
+     jsonToValue(content); // change undefined json value to false.
+     task++; // to display running task in admin views
+     var codepath= "./codes/";
+     var dircode=req.user.username;
+     var allpath = codepath+dircode;
+     var option="";
+     var TIME_LIMIT =  1 * 1000 * 60,
+          MAX_BUFFER = 500 * 1024;
+     // create a source file
+     
+     fs.writeFileSync(codepath+req.user.username+'/temp.c', content.codebox.toString());
+    
+     if(content.cpu=='on' && content.gpu==false && content.mpi==false ){
+             // only g++
+         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         
+       }
+        
+     if(content.cpu=='on' && content.mpi=='on' ){
+             // only machine file
+       }
+     
+     if(content.cpu=='on' && content.condor == 'on' ){
+             // g++ and condor
+       }
+    
+    
+     if(content.gpu=='on' && content.mpi==false ){
+             // ssh and run http://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
+       }
+    
+     if(content.gpu=='on' && content.condor=='on' ){
+            // condor gpu
+    
+       }
+    
+    if(content.gpu=='on' && content.condor=='on'  && content.mpi=='on'){
+            // gpu mpi condor 
+        
+       }
+    
+      
+    if(content.cpu=='on' && content.condor=='on'  && content.mpi=='on'){
+            // cpu mpi condor
+    
+       }
+    
+    //to do: read all files in a dir (except binary source and otrher) 
+    // output issue --> callback while compile 
+    
        
     
-      if( content.codebox.search(/.*system\(.*/) == -1){
+      if( content.codebox.search(/.*system\(.*/) == -1){   
+         
           
-          var codepath= " codes/"; 
-          var dircode=req.user.username;
           
            // first compile then run   
           
-              var child = exec(content.codebox+codepath+dircode, function (error, stdout, stderr){
+              var child = exec(option+";./"+codepath+dircode+"/binary", { timeout: TIME_LIMIT },function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
               //sys.print('stderr: ' + stderr);
 
               if (error !== null) {
-                log = 'exec error: ' + error;
+                log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
               }
                 res.render("test.html",{message : content , logs : log});
                 task--; 
@@ -80,64 +128,52 @@ function jsonToValue(content){
 
 }
 
-function userDir(username){
+function userDir(username){ // create a exclusive dir to each user in the system
      var codepath= "codes/"; 
-     var child = exec("mkdir "+codepath+username, function (error, stdout, stderr){
-              if (error !== null) {
+     var child = exec("mkdir "+codepath+username+";touch "+codepath+username+"/temp.c"+";touch "+codepath+username+"/binary", function (error, stdout, stderr){
+  
+         if (error !== null) {
                 sys.print('exec error: ' + error);
               }
     });
 }
 
-
-function compileOptions(){
-
-}
-
-
-
-function htcOut(){
-
-}
-
 function sendPass(res,usermail,db){
-    //db.getCollection('accounts').findOne({email: "1@yopmail.com"},{username:1 , _id:0 })
+    
     var weblink= "http://localhost:3000/reset";
      db.findOne({ email: usermail },function(err, user) {
          if (err) throw err;         
         
-         if (user) {            
+         if (user) {           
                     
                     // Find a single email
              
                     db.findOne({  email: usermail }, function(err, query) {
-                      if (err) return console.error(err);
-                      //console.dir(query.recovery);
-                        
-                        
-                var smtpTransport = nodemailer.createTransport({
-                   service: "gmail",
-                   auth: {
-                       user: "siriusmpiweb@gmail.com",
-                       pass: "siriuslab2015"
-                   }
-                });
+                      if (err) return console.error(err);                     
 
-                smtpTransport.sendMail({
-                   from: "siriusmpiweb@gmail.com", // sender address
-                   to: usermail, // comma separated list of receivers
-                   subject: "Recuperacion de contrasena WEB-MPI ✔", // Subject line
-                   text: "Codigo de verificacion para crear una nueva contrasena :   "+query.recovery+" Ingresa a "+weblink+"  Gracias  por usar el servicio de WEB-MPI" // plaintext 
-                            }, function(error, response){
-                           if(error){
-                               console.log(error);
-                           }else{
-                                    res.redirect("/");
-                                  }
-          
-                           });                 
-                    
-                    });         
+                    var smtpTransport = nodemailer.createTransport({
+                       service: "gmail",
+                       auth: {
+                           user: "siriusmpiweb@gmail.com",
+                           pass: "siriuslab2015"
+                       }
+                    });
+
+                    smtpTransport.sendMail({
+                       from: "siriusmpiweb@gmail.com", // sender address
+                       to: usermail, // comma separated list of receivers
+                       subject: "Recuperacion de contrasena WEB-MPI ✔", // Subject line
+                       text: "Codigo de verificacion para crear una nueva contrasena :   "+query.recovery+" Ingresa a "+weblink+"  Gracias  por usar el servicio de WEB-MPI" // plaintext 
+                                }, function(error, response){
+                               if(error){
+                                   console.log(error);
+                               }else{
+                                        res.redirect("/");
+                                      }
+
+                               });                 
+
+                    });  // end find One       
         }else{
             console.log("no existe");
             res.send("under construction");
@@ -150,24 +186,21 @@ function sendPass(res,usermail,db){
 
 function changePass(res,req,db){
     
-    db.findOne({ recovery: req.body.token },function(err, user) {   
+    db.findOne({ recovery: req.body.token },function(err, user) {  // search token  
          if (err) throw err;         
-        
+
          if (user) {
              
-              if(user.email === req.body.email ){                    
+              if(user.email === req.body.email ){  // if email is valid                
 
-                  //  db.update({ _id : {$eq:query.id}}, {$set: {password:req.body.newpass }}, function(err, result){
-                    //      console.log("Updated successfully");
-                      //    console.log(result);
-                        //});
-                      
-                      db.remove({ _id : {$eq:query.id}}).exec();
-                       db.register(new db({ username : query.username , 
-                                   email: query.email,
-                                   name: query.name,
-                                   lastname: query.lastname,
-                                   recovery: uuid.v4()    
+                      db.remove({ _id : {$eq:user.id}}).exec(); // remove user
+                       db.register(new db({ username : user.username , // create a new user whit the same values
+                                   email: user.email,
+                                   name: user.name,
+                                   lastname: user.lastname,
+                                   recovery: uuid.v4(),
+                                   isadmin : user.isadmin,
+                                   state : user.state       
                                  }), req.body.newpass, function(err, account) {
                                     if (err) {
                                       return res.render("register", {info: "Database error"});
@@ -199,8 +232,6 @@ function adminview(op,userModel){
         // pending
          return support;
     }
-    
-    
 }
 
 
@@ -216,14 +247,12 @@ function userstate(req,res,userModel){
              
              var t= "[username: " + user.username + "] [name: " + user.name +" ] [lastname: "+ user.lastname + "] [email: " + user.email + "] \n";
         stringuser= stringuser + t;
-            
      
         }
          content.list = stringuser;      
          
           userModel.find({ 'state': false }, function (err, docs) {
-       //console.log(docs);
-        
+
         content.name = req.user.username;        
         
         for(var i = 0; i < docs.length; i++) {
@@ -236,13 +265,8 @@ function userstate(req,res,userModel){
         
         res.render("admin/users.html",{header : content });
     }); 
-         
-         
-         
-         
+
      }); // end find all users
-    
-   
 
 }
 
@@ -298,8 +322,7 @@ function savesuggestion(req,res,userModel){
         
          if (user) {
              support++;
-             res.send('Suggestion added');
-             //userstate(req,res,userModel);
+             res.send('Suggestion added');         
          
          }else{
             res.send("invalid username to update");
@@ -329,7 +352,6 @@ function usersuggs(req,res,userModel){
                  string= string + temp;
              }
             
-             
             });   
         
         }
@@ -354,13 +376,10 @@ function suggcount(userModel){
 
 
 function removesugg(req,res,UserModel){
-
      var content=req.body;
-    //Article.findByIdAndUpdate(   
         userModel.update({ username: req.body.username },  
         {  $pull: { 'comment' : { _id: req.body.id } } },function(err, model) {   
-             if (err) throw err;         
-
+             if (err) throw err;      
              if (model) {
                  console.log(model);
                  support--;

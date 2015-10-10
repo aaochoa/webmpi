@@ -16,8 +16,6 @@ run.suggcount(Account);
 
 // LOGS: route middleware that will happen on every request
 
-
-
 router.use(function(req,res,next){
     //console.log(req.method,req.url);
     //logsfile.savelog(req.url);
@@ -46,12 +44,16 @@ router.get('/editor', function(req, res) {
   content.submitfile = "submit file";
   content.select = "1";
   var info = " Your output area ";
-
-  if (req.isAuthenticated()){
+    
+  if (req.isAuthenticated() && req.user.state===true){
     res.render('test.html',{message : content , logs: info });
   }else{
-    res.redirect('/login');
-}
+       if(req.isAuthenticated() && req.user.state===false){
+            res.send("You account isn't activated");
+        }else{
+            res.redirect('/login');
+        }
+  }
 
 });
 
@@ -152,7 +154,7 @@ router.post('/reset', function(req, res) {
 
 router.get('/sugmail', function(req, res,next) {
 
-    if (req.isAuthenticated()){
+    if (req.isAuthenticated() && req.user.state===true){
             res.render('sugmail.html');
         }else{
             res.redirect('/login');
@@ -160,7 +162,6 @@ router.get('/sugmail', function(req, res,next) {
 });
 
 router.post('/sugmail', function(req, res,next) {
-
     if (req.isAuthenticated()){
             run.savesuggestion(req,res,Account);        
         }else{
@@ -230,7 +231,6 @@ router.get('/suggestions', function(req, res) {
       
      if(req.isAuthenticated() && req.user.isadmin===true  ){
             run.usersuggs(req,res,Account);
-
      }else{
          res.send("unauthorized area");
      }      
@@ -249,8 +249,7 @@ router.post('/suggestions', function(req, res) {
 router.get('/forms', function(req, res) {
       
      if(req.isAuthenticated() && req.user.isadmin===true  ){
-        res.render("admin/forms.html");
-        //run.term;  
+        res.render("admin/forms.html");  
      }else{
          res.send("unauthorized area");
      }
@@ -261,3 +260,8 @@ router.get('/forms', function(req, res) {
 
 
 module.exports = router;
+
+
+
+// 1- create a account from web server, open robomongo , change isadmin value to true and state value to true
+// 
