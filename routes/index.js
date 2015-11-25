@@ -23,7 +23,6 @@ router.use(function(req,res,next){
     // continue doing what we were doing and go to the route
 });
 
-
 router.get('/', function (req, res) {
 
      if(typeof req.user === "undefined"){
@@ -38,10 +37,7 @@ router.get('/editor', function(req, res) {
   var content = req.body;
   content.codebox='// Welcome to the MPI-COMPILER  Powered By SIRIUS lab'
   content.cpu = true;
-  content.gpu = false;
   content.mpi = false;
-  content.condor = false;
-  content.submitfile = "submit file";
   content.select = "1";
   var info = " Your output area ";
     
@@ -68,7 +64,6 @@ if (req.isAuthenticated()){
 }
 });
 
-
 router.get('/register', function(req, res) {
   if (!req.isAuthenticated()) {
     res.render('register', {info: " " });
@@ -84,8 +79,6 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res, next) {
-      
-  
     
       Account.register(new Account({ username : req.body.username ,
                                      email: req.body.email,
@@ -114,7 +107,6 @@ router.post('/register', function(req, res, next) {
       });
 });
 
-
 router.get('/login', function(req, res) {
     res.render('login', { user : req.user });
 });
@@ -137,7 +129,6 @@ router.get('/logout', function(req, res, next) {
         res.redirect('/');
     });
 });
-
 
 router.post('/recovery', function(req, res) {
     run.sendPass(res,req.body.email,Account);
@@ -207,7 +198,6 @@ router.get('/users', function(req, res) {
 
 });
 
-
 router.post('/users', function(req, res) {
     if (req.isAuthenticated() && req.user.isadmin===true ){
         run.activateuser(req,res,Account); 
@@ -225,7 +215,6 @@ router.post('/rmusers', function(req, res) {
      }
 
 });
-
 
 router.get('/suggestions', function(req, res) {
       
@@ -245,7 +234,6 @@ router.post('/suggestions', function(req, res) {
      }      
 });
 
-
 router.get('/forms', function(req, res) {
       
      if(req.isAuthenticated() && req.user.isadmin===true  ){
@@ -255,13 +243,9 @@ router.get('/forms', function(req, res) {
      }
 });
 
-
 //==============================================================================
 
-
 module.exports = router;
-
-
 
 // 1- create a account from web server, open robomongo , change isadmin value to true and state value to true
 // 
