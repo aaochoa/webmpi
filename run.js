@@ -37,41 +37,33 @@ function shell(req,content,res){
      // create a source file
      
      fs.writeFileSync(codepath+req.user.username+'/temp.c', content.codebox.toString());
-    
-     if(content.cpu=='on' && content.gpu==false && content.mpi==false ){
+     
+       if(content.cpu===false && content.mpi===false){
              // only g++
          option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         console.log("cpu=false & mpi=false");
+       }
+     
+    
+     if(content.cpu=='on' && content.mpi=== false){
+             // only g++
+         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         console.log("cpu=on & mpi=false");
          
        }
         
      if(content.cpu=='on' && content.mpi=='on' ){
-             // only machine file
+             // MPI
+         console.log("cpu=on & mpi=on");
+         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
        }
      
-     if(content.cpu=='on' && content.condor == 'on' ){
-             // g++ and condor
+     if(content.cpu===false && content.mpi =='on' ){
+             //MPI
+         console.log("cpu=false & mpi=on");
+         
        }
     
-    
-     if(content.gpu=='on' && content.mpi==false ){
-             // ssh and run http://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
-       }
-    
-     if(content.gpu=='on' && content.condor=='on' ){
-            // condor gpu
-    
-       }
-    
-    if(content.gpu=='on' && content.condor=='on'  && content.mpi=='on'){
-            // gpu mpi condor 
-        
-       }
-    
-      
-    if(content.cpu=='on' && content.condor=='on'  && content.mpi=='on'){
-            // cpu mpi condor
-    
-       }
     
     //to do: read all files in a dir (except binary source and otrher) 
     // output issue --> callback while compile 
