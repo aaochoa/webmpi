@@ -33,8 +33,9 @@ function shell(req,content,res){
      var dircode=req.user.username;
      var allpath = codepath+dircode;
      var option="";
-     var TIME_LIMIT =  1 * 1000 * 60,
-          MAX_BUFFER = 500 * 1024;
+     var TIME_LIMIT_1 =  1 * 1000 * 60,
+	 TIME_LIMIT_2 =  5 * 1000 * 60
+         MAX_BUFFER = 500 * 1024;
      var mpi = 0;
      // create a source file
      
@@ -42,7 +43,7 @@ function shell(req,content,res){
      
        if(content.cpu===false && content.mpi===false){
              // only g++
-	 var mpi = 0;
+	 mpi = 0;
          option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=false & mpi=false");
        }
@@ -50,25 +51,25 @@ function shell(req,content,res){
     
      if(content.cpu=='on' && content.mpi=== false){
              // only g++
-         var mpi = 0;
+         mpi = 0;
 	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=on & mpi=false");
          
        }
         
-     if(content.cpu=='on' && content.mpi=='on' ){
+     if(content.cpu==='on' && content.mpi==='on' ){
              // MPI
-         var mpi = 1;
+         mpi = 1;
 	 console.log("cpu=on & mpi=on");
          //option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
 	 option = "mpic++ -Wall "+ allpath +"/temp.c";
        }
      
-     if(content.cpu===false && content.mpi =='on' ){
+     if(content.cpu===false && content.mpi ==='on' ){
              //MPI
-	 var mpi = 1;	
+	 mpi = 1;	
          console.log("cpu=false & mpi=on");
-	 option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
+	 option = "mpic++ -Wall "+ allpath +"/temp.c";
          
        }
     
@@ -80,21 +81,16 @@ function shell(req,content,res){
     
       if( content.codebox.search(/.*system\(.*/) == -1){   
          
-          if(mpi==0){
-		var run=";./a.out";
-		var extra = " ";
-		var cleaner = " ";
-	   }else{
-		var machine="machine_count = "+ content.select;
-		var run=";condor_submit sub.sub";
-		var extra = "cp ./condorsub/sub.sub "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // replace @ for machine cout.
-	        var cleaner = ";rm errfile.* logfile outfile.* sub.sub"; // just show files before of execute this  	
-	   }
-	   
           
-           // first compile then run   
+           // first compile then run 
+
+	  if(mpi==0){ // when we use a simple g++ program
+ 	
+	      var run=";./binary";
+	      var extra = " ";
+	      var cleaner = " ";
           
-              var child = exec(extra+option+";cd "+codepath+dircode+run+cleaner, { timeout: TIME_LIMIT },function (error, stdout, stderr){
+              var child = exec(option+";cd "+codepath+dircode+run, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
@@ -108,6 +104,32 @@ function shell(req,content,res){
                 return; 
                  
             });
+
+	  }else{ // mpi and HTCondor 
+	     
+	      var machine = "machine_count = "+ content.select;
+	      var run = ";condor_submit sub.sub";
+	      var extra = "cp ./condorsub/sub.sub ./condorsub/checkfile.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // replace @ for machine cout.
+	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub checkfile.sh ;ls"; // just show files before of execute this  
+	      var wait = ";./checkfile.sh "+content.select; // call script
+	      // wait for condor files  (HTCondor sends files when finished the process) 
+
+	      var child = exec(extra+option+";cd "+codepath+dircode+run+wait, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
+
+              //sys.print('stdout: ' + stdout);
+              var log = stdout + stderr;
+              //sys.print('stderr: ' + stderr);
+
+              if (error !== null) {
+                log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+              }
+                res.render("test.html",{message : content , logs : log});
+                task--; 
+                return; 
+                 
+            });
+
+	}
                 
         }else{
             log = "You must not use system instructions"

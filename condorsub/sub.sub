@@ -3,11 +3,11 @@
 ## with multiple procs
 ######################################
 universe = parallel
-executable = binary
+executable = a.out
 #priority = 0
 log = logfile
 #input = infile.$(NODE)
 output = outfile.$(NODE)
 error = errfile.$(NODE)
-when_to_transfer_output = on_exit
-
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
