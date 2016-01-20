@@ -49,7 +49,6 @@
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#tab1primary" data-toggle="tab">Text editor</a></li>
                             <li><a href="#tab2primary" data-toggle="tab">Compiler settings</a></li>
-                            <li><a href="#tab3primary" data-toggle="tab">HTCondor Outputs</a></li>
                         </ul>
                 </div>
                 <div class="panel-body">
@@ -80,7 +79,7 @@
                         </label>
                         <br>
                         <label class="checkbox-inline">
-                        <input type="checkbox" id="MPI"  name="mpi" > MPI
+                        <input type="checkbox" id="MPI" name="mpi" > MPI
                         </label>
                         <br>
                         <br>            
@@ -93,15 +92,10 @@
                           <option value="5">5</option>
                         </select>
                         </div>
-
-                        <div class="tab-pane fade" id="tab3primary">
-                        <textarea id='condorout' name="outbox" rows='10' class='form-control textcontainer'></textarea>
-                        </div>
-
                     </div>
                 </div>
               </div>
-            <textarea readonly id='infoarea' name="logs" rows="5" class='form-control textcontainer' value="logs"></textarea>
+            <textarea readonly id='infoarea' name="logs" rows="10" class='form-control textcontainer' value="logs"></textarea>
             <br>
             <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
         </form>
@@ -113,6 +107,7 @@
               document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;
               document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
               document.getElementById("select").value=<%- JSON.stringify(message.select)%>;
+	      document.getElementById("runcodebtn").style.visibility = <%- JSON.stringify(message.btn)%>;
         </script>
 
       <footer class="footer">

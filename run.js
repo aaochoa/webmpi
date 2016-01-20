@@ -3,7 +3,10 @@ var exec = require('child_process').exec;
 var nodemailer = require("nodemailer");
 var uuid = require('node-uuid');
 var userModel = require('./models/account');
- var fs = require('fs');
+var fs = require('fs');
+
+// content : info control (textarea - checkbox - inputs - selects)
+// log : all outputs
 
 var task=0;
 var nusers;
@@ -23,7 +26,6 @@ function userpending(userModel){
 }
 
 
-
 function shell(req,content,res){ 
     
      jsonToValue(content); // change undefined json value to false.
@@ -35,7 +37,7 @@ function shell(req,content,res){
      var option="";
      var TIME_LIMIT_1 =  1 * 1000 * 60,
 	 TIME_LIMIT_2 =  5 * 1000 * 60
-         MAX_BUFFER = 500 * 1024;
+         MAX_BUFFER = 500 * 2048;
      var mpi = 0;
      // create a source file
      
@@ -56,28 +58,32 @@ function shell(req,content,res){
          console.log("cpu=on & mpi=false");
          
        }
+
+      if(content.cpu=='false' && content.mpi=== false){
+             // only g++
+         mpi = 0;
+	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         console.log("cpu=false & mpi=false");
+         
+       }	
         
      if(content.cpu==='on' && content.mpi==='on' ){
              // MPI
          mpi = 1;
 	 console.log("cpu=on & mpi=on");
          //option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
-	 option = "mpic++ -Wall "+ allpath +"/temp.c";
+	 option = "mpic++ -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
        }
      
      if(content.cpu===false && content.mpi ==='on' ){
              //MPI
 	 mpi = 1;	
          console.log("cpu=false & mpi=on");
-	 option = "mpic++ -Wall "+ allpath +"/temp.c";
+	 option = "mpic++ -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
          
        }
-    
-    
-    //to do: read all files in a dir (except binary source and otrher).
-    // output issue --> callback while compile 
-    
-       
+      
+      content.btn='visible'; // Set button 
     
       if( content.codebox.search(/.*system\(.*/) == -1){   
          
@@ -90,7 +96,7 @@ function shell(req,content,res){
 	      var extra = " ";
 	      var cleaner = " ";
           
-              var child = exec(option+";cd "+codepath+dircode+run, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
+              var child = exec(option, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
@@ -98,36 +104,57 @@ function shell(req,content,res){
 
               if (error !== null) {
                 log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
-              }
-                res.render("test.html",{message : content , logs : log});
+		res.render("test.html",{message : content , logs : log});
                 task--; 
                 return; 
-                 
+              }
+
+	      var child = exec("cd "+codepath+dircode+run, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
+		  var log = stdout + stderr;
+		  if (error !== null) {
+                  	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+              	   }
+			res.render("test.html",{message : content , logs : log});
+		        task--; 
+		        return; 	        
+            	});     
             });
 
-	  }else{ // mpi and HTCondor 
+	  }
+
+	  if(mpi==1){ // mpi and HTCondor 
 	     
 	      var machine = "machine_count = "+ content.select;
 	      var run = ";condor_submit sub.sub";
-	      var extra = "cp ./condorsub/sub.sub ./condorsub/checkfile.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // replace @ for machine cout.
-	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub checkfile.sh ;ls"; // just show files before of execute this  
-	      var wait = ";./checkfile.sh "+content.select; // call script
-	      // wait for condor files  (HTCondor sends files when finished the process) 
-
-	      var child = exec(extra+option+";cd "+codepath+dircode+run+wait, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
-
+	      var extra = "cp ./condorsub/sub.sub ./condorsub/output.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // add machine cout.
+	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub output.sh;"; // just show files before of execute this  
+	      var wait = ";condor_wait logfile;./output.sh "; // call script
+	      // wait for condor execute
+	  
+	      var child = exec(extra+option, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
               //sys.print('stderr: ' + stderr);
 
               if (error !== null) {
-                log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
-              }
-                res.render("test.html",{message : content , logs : log});
+                log = 'ERROR: ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+		res.render("test.html",{message : content , logs : log});
                 task--; 
-                return; 
-                 
-            });
+                return;
+		 
+              }  		
+		
+
+	      var child = exec("cd "+codepath+dircode+run+wait+cleaner, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
+		  var log = stdout + stderr;
+			  if (error !== null) {
+		          	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+		      	   }
+				res.render("test.html",{message : content , logs : log});
+				task--; 
+				return; 	        
+		    	}); 	
+              });
 
 	}
                 
@@ -135,9 +162,7 @@ function shell(req,content,res){
             log = "You must not use system instructions"
             res.render("test.html",{message : content , logs : log});
             task--; 
-            return;
-            
-        
+            return;        
         }
 }
 
@@ -146,16 +171,8 @@ function jsonToValue(content){
         content.cpu = false;
     }
     
-     if(typeof content.gpu === "undefined"){
-        content.gpu = false;
-    }
-    
      if(typeof content.mpi === "undefined"){
         content.mpi = false;
-    }
-    
-     if(typeof content.condor === "undefined"){
-        content.condor = false;
     }
 
 }
@@ -438,6 +455,3 @@ exports.usersuggs = usersuggs;
 exports.suggcount = suggcount;
 exports.removesugg = removesugg;
 
-// content : info control (textarea - checkbox - inputs - selects)
-// log : all outputs
-// typeof variable == "undefined"
