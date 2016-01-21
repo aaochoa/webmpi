@@ -26,9 +26,8 @@ function userpending(userModel){
 }
 
 
-function shell(req,content,res){ 
-    
-     jsonToValue(content); // change undefined json value to false.
+function shell(req,content,res){  
+     
      task++; // to display running task in admin views
      //var codepath= "./codes/";
      var codepath= "/exports/condor/codes/";
@@ -39,11 +38,11 @@ function shell(req,content,res){
 	 TIME_LIMIT_2 =  5 * 1000 * 60
          MAX_BUFFER = 500 * 2048;
      var mpi = 0;
-     // create a source file
+
+     // create a source file     
+     fs.writeFileSync(codepath+req.user.username+'/temp.c', content.text.toString());
      
-     fs.writeFileSync(codepath+req.user.username+'/temp.c', content.codebox.toString());
-     
-       if(content.cpu===false && content.mpi===false){
+       if(content.cpu=='false' && content.mpi=='false'){
              // only g++
 	 mpi = 0;
          option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
@@ -51,7 +50,7 @@ function shell(req,content,res){
        }
      
     
-     if(content.cpu=='on' && content.mpi=== false){
+     if(content.cpu=='true' && content.mpi=='false'){
              // only g++
          mpi = 0;
 	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
@@ -59,15 +58,7 @@ function shell(req,content,res){
          
        }
 
-      if(content.cpu=='false' && content.mpi=== false){
-             // only g++
-         mpi = 0;
-	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
-         console.log("cpu=false & mpi=false");
-         
-       }	
-        
-     if(content.cpu==='on' && content.mpi==='on' ){
+     if(content.cpu=='true' && content.mpi=='true' ){
              // MPI
          mpi = 1;
 	 console.log("cpu=on & mpi=on");
@@ -75,7 +66,7 @@ function shell(req,content,res){
 	 option = "mpic++ -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
        }
      
-     if(content.cpu===false && content.mpi ==='on' ){
+     if(content.cpu=='false' && content.mpi =='true' ){
              //MPI
 	 mpi = 1;	
          console.log("cpu=false & mpi=on");
@@ -85,7 +76,7 @@ function shell(req,content,res){
       
       content.btn='visible'; // Set button 
     
-      if( content.codebox.search(/.*system\(.*/) == -1){   
+      if( content.text.search(/.*system\(.*/) == -1){   
          
           
            // first compile then run 
@@ -104,7 +95,8 @@ function shell(req,content,res){
 
               if (error !== null) {
                 log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
-		res.render("test.html",{message : content , logs : log});
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(log)); // send result of program 
                 task--; 
                 return; 
               }
@@ -114,7 +106,8 @@ function shell(req,content,res){
 		  if (error !== null) {
                   	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
               	   }
-			res.render("test.html",{message : content , logs : log});
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify(log)); // send result of program 
 		        task--; 
 		        return; 	        
             	});     
@@ -124,7 +117,7 @@ function shell(req,content,res){
 
 	  if(mpi==1){ // mpi and HTCondor 
 	     
-	      var machine = "machine_count = "+ content.select;
+	      var machine = "machine_count = "+ content.machines;
 	      var run = ";condor_submit sub.sub";
 	      var extra = "cp ./condorsub/sub.sub ./condorsub/output.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // add machine cout.
 	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub output.sh;"; // just show files before of execute this  
@@ -138,7 +131,8 @@ function shell(req,content,res){
 
               if (error !== null) {
                 log = 'ERROR: ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
-		res.render("test.html",{message : content , logs : log});
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(log)); // send result of program 
                 task--; 
                 return;
 		 
@@ -150,7 +144,8 @@ function shell(req,content,res){
 			  if (error !== null) {
 		          	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
 		      	   }
-				res.render("test.html",{message : content , logs : log});
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify(log)); // send result of program 
 				task--; 
 				return; 	        
 		    	}); 	
@@ -164,17 +159,6 @@ function shell(req,content,res){
             task--; 
             return;        
         }
-}
-
-function jsonToValue(content){
-    if(typeof content.cpu === "undefined"){
-        content.cpu = false;
-    }
-    
-     if(typeof content.mpi === "undefined"){
-        content.mpi = false;
-    }
-
 }
 
 function userDir(username){ // create a exclusive dir to each user in the system

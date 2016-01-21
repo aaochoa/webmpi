@@ -24,7 +24,6 @@
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src='../js/clickcompile.js'></script>
     <script src='../js/codemirror.js'></script>
     <script src='../js/clike.js'></script>
   </head>
@@ -41,9 +40,7 @@
         <h3 class="text-muted">MPI Compiler</h3>
       </div>
 
-      <div class="jumbotron">
-
-          <form id="form" method="post" action="/editor" accept-charset="utf-8">
+      <div class="jumbotron">	    
             <div class="panel with-nav-tabs panel-primary">
                 <div class="panel-heading">
                         <ul class="nav nav-tabs">
@@ -66,7 +63,7 @@
                                 tabSize: 2,
                                 mode: 'text/x-csrc'
                                 });
-                                editor.setValue(<%- JSON.stringify(message.codebox)%>);
+                                editor.setValue("// Welcome to the MPI-COMPILER powered by SIRIUS lab !");
                             </script>
                         </div>
 
@@ -97,17 +94,42 @@
               </div>
             <textarea readonly id='infoarea' name="logs" rows="10" class='form-control textcontainer' value="logs"></textarea>
             <br>
-            <button class="btn btn-lg btn-success" id = "runcodebtn">Run and Compile</button>
-        </form>
+	    <form class="submit">
+		<input type="submit" id="btnsub" data-action="upload" value="COMPILE & RUN" class="btn btn-lg btn-success">
+	    </form>	
       </div>
 
         <script>
-                // Set all values to "save" of render
-              document.getElementById("CPU").checked=<%- JSON.stringify(message.cpu)%>;
-              document.getElementById("infoarea").value=<%- JSON.stringify(logs)%>;
-              document.getElementById("MPI").checked=<%- JSON.stringify(message.mpi)%>;
-              document.getElementById("select").value=<%- JSON.stringify(message.select)%>;
-	      document.getElementById("runcodebtn").style.visibility = <%- JSON.stringify(message.btn)%>;
+             $(document).ready(function(){		
+
+		$('[data-action=upload]').click(function(e) {
+		   e.preventDefault();
+
+		   mpi = $("#MPI").is(":checked");
+		   cpu = $("#CPU").is(":checked");	
+		   var e = document.getElementById("select");
+		   strUser = e.options[e.selectedIndex].value;	   	
+		   $("#btnsub").attr("disabled", true);
+		   $("#infoarea").text("Esperando resultado");	
+
+		 $.ajax({
+			url: 'http://localhost:3000/editor',
+			type: 'POST',			
+			data: {
+				'text': editor.getValue(),
+ 				'mpi' : mpi,
+				'cpu' :	cpu,
+				'machines': strUser			
+			},
+			success: function(result) {				
+				$("#btnsub").removeAttr("disabled");
+				$("#infoarea").text(result);
+			},
+		});
+	     });
+			
+	});
+
         </script>
 
       <footer class="footer">

@@ -33,16 +33,10 @@ router.get('/', function (req, res) {
 
 });
 
-router.get('/editor', function(req, res) {
-  var content = req.body;
-  content.codebox='// Welcome to the MPI-COMPILER  Powered By SIRIUS lab'
-  content.cpu = true;
-  content.mpi = false;
-  content.select = "1";
-  var info = " Your output area ";
+router.get('/editor', function(req, res) { 
     
   if (req.isAuthenticated() && req.user.state===true){
-    res.render('test.html',{message : content , logs: info });
+    res.render('test.html');
   }else{
        if(req.isAuthenticated() && req.user.state===false){
             res.send("You account isn't activated");
