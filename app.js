@@ -92,7 +92,7 @@ var tty = require('tty.js');
 var terminal = tty.createServer({
   shell: 'bash',
   users: {
-    admin: 'pass'
+    admin: '' //It will need to be set up
   },
   port: 3201
 });
@@ -103,7 +103,7 @@ terminal.listen();
 
 var http        = require("http"),
     terminal    = require("web-terminal");
- 
+
 terminal(app.listen(1222));
     console.log("Web-terminal accessible at http://127.0.0.1:1337/terminal");
 */
