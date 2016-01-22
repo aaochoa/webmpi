@@ -27,7 +27,7 @@ function userpending(userModel){
 
 
 function shell(req,content,res){  
-     
+     console.log(content.condor);
      task++; // to display running task in admin views
      //var codepath= "./codes/";
      var codepath= "/exports/condor/codes/";
@@ -37,42 +37,75 @@ function shell(req,content,res){
      var TIME_LIMIT_1 =  1 * 1000 * 60,
 	 TIME_LIMIT_2 =  5 * 1000 * 60
          MAX_BUFFER = 500 * 2048;
-     var mpi = 0;
+     var op = 0;
 
      // create a source file     
      fs.writeFileSync(codepath+req.user.username+'/temp.c', content.text.toString());
      
-       if(content.cpu=='false' && content.mpi=='false'){
+     if(content.cpu=='false' && content.mpi=='false' && content.condor=='false' ){
              // only g++
-	 mpi = 0;
+	 op = 0;
          option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=false & mpi=false");
        }
      
     
-     if(content.cpu=='true' && content.mpi=='false'){
+     if(content.cpu=='true' && content.mpi=='false' && content.condor=='false'){
              // only g++
-         mpi = 0;
+         op = 0;
 	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=on & mpi=false");
          
        }
 
-     if(content.cpu=='true' && content.mpi=='true' ){
-             // MPI
-         mpi = 1;
+     if(content.cpu=='false' && content.mpi=='false' && content.condor=='true'){
+             // g++ and htcondor
+	 op = 1;
+         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         console.log("cpu=false & mpi=false");
+       }
+
+     if(content.cpu=='true' && content.mpi=='false' && content.condor=='true'){
+             // g++ and htcondor
+	 op = 1;
+         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         console.log("cpu=false & mpi=false");
+       }  	
+
+     if(content.cpu=='true' && content.mpi=='true' && content.condor=='false' ){
+             // only MPI
+         op = 2;
 	 console.log("cpu=on & mpi=on");
          //option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
-	 option = "mpic++ -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
+	 option = "mpic++.mpich -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
        }
      
-     if(content.cpu=='false' && content.mpi =='true' ){
-             //MPI
-	 mpi = 1;	
+     if(content.cpu=='false' && content.mpi =='true' && content.condor=='false'){
+             //only MPI
+	 op = 2;	
          console.log("cpu=false & mpi=on");
-	 option = "mpic++ -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
+	 option = "mpic++.mpich -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
          
        }
+
+
+     if(content.cpu=='false' && content.mpi =='true' && content.condor=='true'){
+             //MPI and htcondor
+	 op = 3;	
+         console.log("cpu=false & mpi=on");
+	 option = "mpic++.mpich -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
+         
+       }
+
+    
+     if(content.cpu=='true' && content.mpi =='true' && content.condor=='true'){
+             //MPI and htcondor
+	 op = 3;	
+         console.log("cpu=false & mpi=on");
+	 option = "mpic++.mpich -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
+         
+       } 	     
+		
       
       content.btn='visible'; // Set button 
     
@@ -81,7 +114,7 @@ function shell(req,content,res){
           
            // first compile then run 
 
-	  if(mpi==0){ // when we use a simple g++ program
+	  if(op==0){ // when we use a simple g++ program
  	
 	      var run=";./binary";
 	      var extra = " ";
@@ -112,10 +145,86 @@ function shell(req,content,res){
 		        return; 	        
             	});     
             });
-
 	  }
 
-	  if(mpi==1){ // mpi and HTCondor 
+
+	  if(op==1){ // g++ and HTCondor 
+	     
+	      var machine = "machine_count = "+ content.machines;
+	      var run = ";condor_submit sub.sub";
+	      var extra = "cp ./condorsub/sub.sub ./condorsub/output.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // add machine cout.
+	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub output.sh;"; // just show files before of execute this  
+	      var wait = ";condor_wait logfile;./output.sh "; // call script
+	      // wait for condor execute
+	  
+	      var child = exec(extra+option, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
+              //sys.print('stdout: ' + stdout);
+              var log = stdout + stderr;
+              //sys.print('stderr: ' + stderr);
+
+              if (error !== null) {
+                log = 'ERROR: ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(log)); // send result of program 
+                task--; 
+                return;
+		 
+              }  		
+		
+
+	      var child = exec("cd "+codepath+dircode+run+wait+cleaner, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
+		  var log = stdout + stderr;
+			  if (error !== null) {
+		          	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+		      	   }
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify(log)); // send result of program 
+				task--; 
+				return; 	        
+		    	}); 	
+              });
+
+	}
+
+
+	
+	  if(op==2){ // only mpi
+ 	
+	      var run=";mpirun -n " + content.machines + " --hostfile " + "hosts" + " ./binary" ;
+	      var extra = "cp ./condorsub/hosts "+allpath+";";
+	      var cleaner = ";rm hosts ";
+          
+              var child = exec(extra+option, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
+
+              //sys.print('stdout: ' + stdout);
+              var log = stdout + stderr;
+              //sys.print('stderr: ' + stderr);
+
+              if (error !== null) {
+                log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(log)); // send result of program 
+                task--; 
+                return; 
+              }
+
+	      var child = exec("cd "+codepath+dircode+run+cleaner, { timeout: TIME_LIMIT_1 },function (error, stdout, stderr){
+		  var log = stdout + stderr;
+		  if (error !== null) {
+                  	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
+              	   }
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify(log)); // send result of program 
+		        task--; 
+		        return; 	        
+            	});     
+            });
+
+	  }	
+	
+	
+
+	  if(op==3){ // mpi and HTCondor 
 	     
 	      var machine = "machine_count = "+ content.machines;
 	      var run = ";condor_submit sub.sub";
