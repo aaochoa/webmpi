@@ -1,0 +1,15 @@
+######################################
+## MPI example submit description file
+## with multiple procs
+######################################
+universe = parallel
+executable = binary
+#priority = 0
+log = logfile
+#input = infile.$(NODE)
+output = outfile.$(NODE)
+error = errfile.$(NODE)
+machine_count = @
+when_to_transfer_output = on_exit
+queue
+

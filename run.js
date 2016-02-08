@@ -25,21 +25,24 @@ function userpending(userModel){
 
 
 function shell(req,content,res){ 
-    
+     console.log("entro a shell");
      jsonToValue(content); // change undefined json value to false.
      task++; // to display running task in admin views
-     var codepath= "./codes/";
+     //var codepath= "./codes/";
+     var codepath= "/exports/condor/codes/";
      var dircode=req.user.username;
      var allpath = codepath+dircode;
      var option="";
      var TIME_LIMIT =  1 * 1000 * 60,
           MAX_BUFFER = 500 * 1024;
+     var mpi = 0;
      // create a source file
      
      fs.writeFileSync(codepath+req.user.username+'/temp.c', content.codebox.toString());
      
        if(content.cpu===false && content.mpi===false){
              // only g++
+	 var mpi = 0;
          option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=false & mpi=false");
        }
@@ -47,36 +50,46 @@ function shell(req,content,res){
     
      if(content.cpu=='on' && content.mpi=== false){
              // only g++
-         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         var mpi = 0;
+	 option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
          console.log("cpu=on & mpi=false");
          
        }
         
      if(content.cpu=='on' && content.mpi=='on' ){
              // MPI
-         console.log("cpu=on & mpi=on");
-         option = "g++ -g -Wall "+ allpath+"/temp.c -o "+ allpath +"/binary";
+         var mpi = 1;
+	 console.log("cpu=on & mpi=on");
+         option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
        }
      
      if(content.cpu===false && content.mpi =='on' ){
              //MPI
+	 var mpi = 1;	
          console.log("cpu=false & mpi=on");
+	 option = "mpicc -Wall -o "+ allpath+"/binary "+ allpath +"/temp.c";
          
        }
     
     
-    //to do: read all files in a dir (except binary source and otrher) 
+    //to do: read all files in a dir (except binary source and otrher) , Remove dirs and files
     // output issue --> callback while compile 
     
        
     
       if( content.codebox.search(/.*system\(.*/) == -1){   
          
-          
+          if(mpi==0){
+		run=";./binary";
+		extra = " ";
+	   }else{
+		run=";condor_submit sub.sub";
+		extra = "cp ./condorsub/sub.sub "+allpath+";"; // replace @ for machine cout.	
+	   }
           
            // first compile then run   
           
-              var child = exec(option+";./"+codepath+dircode+"/binary", { timeout: TIME_LIMIT },function (error, stdout, stderr){
+              var child = exec(extra+option+";cd "+codepath+dircode+run, { timeout: TIME_LIMIT },function (error, stdout, stderr){
 
               //sys.print('stdout: ' + stdout);
               var log = stdout + stderr;
@@ -121,7 +134,7 @@ function jsonToValue(content){
 }
 
 function userDir(username){ // create a exclusive dir to each user in the system
-     var codepath= "codes/"; 
+     var codepath= "/exports/condor/codes/"; 
      var child = exec("mkdir "+codepath+username+";touch "+codepath+username+"/temp.c"+";touch "+codepath+username+"/binary", function (error, stdout, stderr){
   
          if (error !== null) {
