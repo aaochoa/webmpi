@@ -101,7 +101,7 @@ function shell(req,content,res){
      if(content.cpu=='true' && content.mpi =='true' && content.condor=='true'){
              //MPI and htcondor
 	 op = 3;	
-         console.log("cpu=false & mpi=on");
+         console.log("cpu=true & mpi=on");
 	 option = "mpic++.mpich -Wall "+ allpath +"/temp.c -o"+ allpath + "/binary";
          
        } 	     
@@ -227,9 +227,10 @@ function shell(req,content,res){
 	  if(op==3){ // mpi and HTCondor 
 	     
 	      var machine = "machine_count = "+ content.machines;
-	      var run = ";condor_submit sub.sub";
-	      var extra = "cp ./condorsub/sub.sub ./condorsub/output.sh "+allpath+"; echo \""+machine+"\" >> "+allpath+"/sub.sub"+";echo \"queue\">> "+allpath+"/sub.sub;"; // add machine cout.
-	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub output.sh;"; // just show files before of execute this  
+	      var run = ";condor_submit submpi.sub";
+	      var extra = "cp ./condorsub/* "+allpath+"; echo \""+machine+" \nqueue"+"\" >> "+allpath+"/submpi.sub;"; // add machine cout.
+	      var cleaner = ";rm errfile.* logfile outfile.* sub.sub output.sh submpi.sub hosts script;"; // just show files before of execute this 	 
+	      var plus = "sed -i \"9i arguments = "+ allpath + "/binary" +"\" "+allpath+"/submpi.sub;"
 	      var wait = ";condor_wait logfile;./output.sh "; // call script
 	      // wait for condor execute
 	  
@@ -248,7 +249,7 @@ function shell(req,content,res){
               }  		
 		
 
-	      var child = exec("cd "+codepath+dircode+run+wait+cleaner, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
+	      var child = exec(plus+"cd "+codepath+dircode+run+wait+cleaner, { timeout: TIME_LIMIT_2 },function (error, stdout, stderr){
 		  var log = stdout + stderr;
 			  if (error !== null) {
 		          	log = 'ERROR:  ' + error + " - code: "+ error.code + " - Signal : "+ error.signal ;
@@ -270,8 +271,19 @@ function shell(req,content,res){
         }
 }
 
+function hostfile(){ // create a hostfile- todo: Send ping to generate the file from machines available
+     var codepath= "/exports/condor/codes/";			 
+     var child = exec("cp ./condorsub/hosts "+codepath, function (error, stdout, stderr){
+  
+         if (error !== null) {
+                sys.print('exec error: ' + error);
+              }
+    });
+}
+
+
 function userDir(username){ // create a exclusive dir to each user in the system
-     var codepath= "/exports/condor/codes/"; 
+     var codepath= "/exports/condor/codes/";	 
      var child = exec("mkdir "+codepath+username+";touch "+codepath+username+"/temp.c"+";touch "+codepath+username+"/binary", function (error, stdout, stderr){
   
          if (error !== null) {
@@ -533,6 +545,7 @@ function removesugg(req,res,UserModel){
         });        
 }
 
+exports.hostfile = hostfile;
 exports.shell = shell;
 exports.userDir = userDir;
 exports.sendPass = sendPass;

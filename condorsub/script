@@ -1,0 +1,51 @@
+#!/bin/sh
+##**************************************************************
+##
+## Copyright (C) 1990-2007, Condor Team, Computer Sciences Department,
+## University of Wisconsin-Madison, WI.
+## 
+## Licensed under the Apache License, Version 2.0 (the "License"); you
+## may not use this file except in compliance with the License.  You may
+## obtain a copy of the License at
+## 
+##    http://www.apache.org/licenses/LICENSE-2.0
+## 
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+##**************************************************************
+
+
+_CONDOR_PROCNO=$_CONDOR_PROCNO
+_CONDOR_NPROCS=$_CONDOR_NPROCS
+
+EXECUTABLE=$1
+MACHINES='/exports/condor/codes/hosts'
+export P4_RSHCOMMAND=ssh
+
+if [ $_CONDOR_PROCNO -ne 0 ]
+then
+        wait
+        sshd_cleanup
+fi
+
+MPDIR=/usr/lib
+PATH=$MPDIR:.:$PATH
+export PATH
+
+
+# the binary is copied but the executable flag is cleared.
+# so the script have to take care of this
+#chmod +x $EXECUTABLE
+
+# The second field in the contact file is the machine name
+# that condor_ssh knows how to use
+
+## run the actual mpijob
+mpirun -v -np $_CONDOR_NPROCS --hostfile $MACHINES $EXECUTABLE $@ 
+#mpirun -v -np $_CONDOR_NPROCS -machinefile $MACHINES $EXECUTABLE $@
+exit $?
+

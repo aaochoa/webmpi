@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var engine  = require('ejs-locals');
+var run = require('./run');
 
 var routes = require('./routes/index');
 var users = require('./routes/user');
@@ -97,6 +98,7 @@ var terminal = tty.createServer({
   port: 3201
 });
 
+run.hostfile(); // generate hostfile (mpi jobs)
 terminal.listen();
 
 /*

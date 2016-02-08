@@ -1,0 +1,13 @@
+######################################
+## MPI example submit description file
+## with multiple procs
+######################################
+universe = parallel
+#initialdir = /exports/condor/apps/examples/others/mpi/process/
+executable = script
+#executable = /exports/condor/apps/examples/others/mpi/process/wrapper.sh
+#arguments = /exports/condor/codes/test2/binary 
+getenv = TRUE
+log = logfile
+output = outfile.$(NODE)
+error = errfile.$(NODE)
