@@ -1,0 +1,25 @@
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# Set up interfaces manually, avoiding conflicts with, e.g., network manager
+iface eth0 inet manual
+iface eth1 inet manual
+
+auto eth1
+iface eth1 inet static
+        address 10.1.x.xx
+        netmask 255.255.252.0
+        gateway 10.1.x.x
+        dns-nameserver 10.1.x.x
+
+auto eth0
+iface eth0 inet static
+         address 192.168.0.1
+         netmask 255.255.255.0
+         gateway 192.168.0.1
+         dns-nameserver 10.1.x.x

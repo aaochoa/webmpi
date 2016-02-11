@@ -1,0 +1,19 @@
+######################################
+## MPI example submit description file
+## with multiple procs
+######################################
+universe = parallel
+initialdir = /exports/condor/
+executable = /exports/condor/script
+arguments = /exports/condor/primos 
+getenv = TRUE
+#priority = 0
+log = logfile
+#input = infile.$(NODE)
+output = outfile.$(NODE)
+error = errfile.$(NODE)
+machine_count = 1
+#should_transfer_files = yes
+#when_to_transfer_output = on_exit_or_evict
+#transfer_input_files = primos
+queue
